@@ -28,5 +28,7 @@ run:	${EXEC}
 %.o:	%.rc
 	${WINDRES} ${RC} $*.o
 
+all: clean ${EXEC}
+
 clean:
 	${RM} ${OBJS} ${EXEC}

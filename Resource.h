@@ -5,8 +5,8 @@
 
 #define RES_APPNAMEsz       "LOKI - the Keyboard Indicator"
 #define RES_CODENAMEsz      "TRANQUIL_TURTLE"
-#define RES_APPVERsz        "0.1.0-BETA"
-#define RES_VERINFOnum      0,1,0,11
+#define RES_APPVERsz        "0.1.1-BETA"
+#define RES_VERINFOnum      0,1,1,11
 #define TO_TEXT(val)        #val
 #define RES_RELEASEDATEsz   "2021/08/19"
 #define RES_AUTHORsz        "inucat"
@@ -14,7 +14,7 @@
 #define MRID_MANIFEST   999
 
 // _ Icon Resource ID
-#define IRID_APPICON    544
+#define IRID_APPICON    100
 // _ +4 for `ACTIVE`, +8 for `LIGHT` variants respectively
 #define IRID_ACTIVEOFFSET   4
 #define IRID_LIGHTOFFSET    8

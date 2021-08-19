@@ -1,8 +1,11 @@
 #define UNICODE                     // UTF-8 Standard
 #define NTDDI_VERSION NTDDI_VISTA   // Targeted OS is Vista or later
-#include <windows.h>                // Where it all begins...
+#include <Windows.h>                // Where it all begins...
 #include <windowsx.h>               // GET_X(,Y)_LPARAM
+// #include <WinUser.h>
 #include "Resource.h"
+
+// #define _ENABLE_APP_DEBUG_
 
 // Num of the icons of keys to observe
 #define NOTIFYICON_TOTAL    4
@@ -70,7 +73,7 @@ int WINAPI WinMain(
     wc.cbClsExtra   = 0;
     wc.cbWndExtra   = 0;
     wc.hInstance    = hInstance;
-    wc.hIcon        = LoadIcon(hInstance, MAKEINTRESOURCE(IRID_APPICON));
+    wc.hIcon        = NULL;
     wc.hCursor      = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground= (HBRUSH) (COLOR_ACTIVECAPTION + 1);
     wc.lpszMenuName = NULL;
@@ -174,10 +177,10 @@ LRESULT CALLBACK WndProc(
         if ( LOWORD(lParam) == WM_CONTEXTMENU )
         {   // : Context menu appeared
             POINT pt = {};                  // To get Mouse position when an icon is clicked
-            pt.x = GET_X_LPARAM(wParam);
+            pt.x = GET_X_LPARAM(wParam);    // Manifest solved the HiDPI problem
             pt.y = GET_Y_LPARAM(wParam);
-            // : Obtained X,Y seems INCORRECT with HiDPI enabled
-            // ClientToScreen(hwnd, &pt);
+            // wsprintf(szTemp, L"x = %d, y = %d\n", pt.x, pt.y);
+            // WriteConsole(hConsole, szTemp, lstrlen(szTemp), NULL, NULL);
             SetForegroundWindow(hwnd);          // Prevent Menu from remaining or disappearing
             TrackPopupMenu( hSubMenu, TPM_BOTTOMALIGN | TPM_LEFTALIGN,
                             pt.x, pt.y, 0, hwnd, NULL);

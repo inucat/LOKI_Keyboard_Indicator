@@ -12,8 +12,9 @@
 
 // --- Manifest resources ---
 // _ Resource Type ID for Manifest
-// #define MANIFEST 24
-// MRID_MANIFEST   MANIFEST    "d.manifest"
+#define MANIFEST 24
+// _ nameID MUST BE 1 or auto adaption to HiDPI will be disabled
+1   MANIFEST    "Application.manifest"
 
 // --- Icon resources ---
 IRID_APPICON    ICON	"resource\\AppIcon.ico"
@@ -57,6 +58,7 @@ MID_NIMENU_DUMMYPARENT MENU {
 }
 
 // --- Version Info resources ---
+// nameId MUST BE 1
 1 VERSIONINFO
 FILEVERSION RES_VERINFOnum
 PRODUCTVERSION RES_VERINFOnum
