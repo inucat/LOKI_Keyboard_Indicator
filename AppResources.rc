@@ -1,0 +1,77 @@
+/// Resource script
+#include "Resource.h"
+#include <winver.h>
+/// @note
+/// DESIGNINFO, HWB, TEXTINCLUDE, and 255 are reserved
+/// by Microsoft for Resource Name ID, so users should
+/// not use them.
+/// See https://docs.microsoft.com/ja-jp/cpp/windows/how-to-create-a-resource-script-file?view=msvc-160
+
+/// @note
+/// Enums are NEVER expanded. Macroes by `#define` only accepted!
+
+// --- Manifest resources ---
+// _ Resource Type ID for Manifest
+// #define MANIFEST 24
+// MRID_MANIFEST   MANIFEST    "d.manifest"
+
+// --- Icon resources ---
+IRID_APPICON    ICON	"resource\\AppIcon.ico"
+
+IRID_DNUMD		ICON	"resource\\DDN.ico"
+IRID_DCAPSD		ICON	"resource\\DDC.ico"
+IRID_DSCROLLD	ICON	"resource\\DDS.ico"
+IRID_DINSERTD	ICON	"resource\\DDI.ico"
+
+IRID_DNUMA		ICON	"resource\\DAN.ico"
+IRID_DCAPSA		ICON	"resource\\DAC.ico"
+IRID_DSCROLLA	ICON	"resource\\DAS.ico"
+IRID_DINSERTA	ICON	"resource\\DAI.ico"
+
+IRID_LNUMD		ICON	"resource\\LDNum.ico"
+IRID_LCAPSD		ICON	"resource\\LDCaps.ico"
+IRID_LSCROLLD	ICON	"resource\\LDScr.ico"
+IRID_LINSERTD	ICON	"resource\\LDIns.ico"
+
+IRID_LNUMA		ICON	"resource\\LANum.ico"
+IRID_LCAPSA		ICON	"resource\\LACaps.ico"
+IRID_LSCROLLA	ICON	"resource\\LAScr.ico"
+IRID_LINSERTA	ICON	"resource\\LAIns.ico"
+
+// --- Menu resources ---
+MID_NIMENU_DUMMYPARENT MENU {
+    POPUP "DUMMY" {
+        // MENUITEM "Num Lock",    MIID_NUMLOCK,       CHECKED
+        // MENUITEM "Caps Lock",   MIID_CAPSLOCK,      CHECKED
+        // MENUITEM "Scroll Lock", MIID_SCROLLLOCK,    CHECKED
+        // MENUITEM "Insert",      MIID_SCROLLLOCK,    CHECKED
+        // MENUITEM SEPARATOR
+        // MENUITEM "Notify when toggled", MIID_SENDNOTIFY,    CHECKED
+        // MENUITEM "Notification Sound",  MIID_NOTIFYSOUND,   CHECKED
+        // MENUITEM "Autostart This App",  MIID_AUTOSTART,     INACTIVE
+        // MENUITEM SEPARATOR
+        MENUITEM "About...",    MIID_ABOUT
+        MENUITEM SEPARATOR
+        MENUITEM "Quit",        MIID_EXIT
+    }
+}
+
+// --- Version Info resources ---
+1 VERSIONINFO
+FILEVERSION RES_VERINFOnum
+PRODUCTVERSION RES_VERINFOnum
+FILEOS VOS_NT
+FILETYPE VFT_APP
+{
+    BLOCK "StringFileInfo" {
+        BLOCK "040904E4" {
+            VALUE "ProductName", RES_APPNAMEsz
+            VALUE "CompanyName", RES_AUTHORsz
+            VALUE "FileDescription", "Lightweight & Open source Keyboard Indicator"
+            VALUE "FileVersion", RES_APPVERsz
+            VALUE "ProductVersion", RES_APPVERsz
+            VALUE "InternalName", RES_CODENAMEsz
+            VALUE "OriginalFilename", "loki.exe"
+        }
+    }
+}
