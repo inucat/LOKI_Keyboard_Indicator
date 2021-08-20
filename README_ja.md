@@ -20,7 +20,7 @@ C/C++言語で一から書いてWindows APIを直接呼び出しているため�
 
 ## ダウンロードと使い方
 
-1. [Release](https://github.com/inucat/LOKI_Keyboard_Indicator/releases)からZIPをダウンロードします。
+1. [Release](https://github.com/inucat/LOKI_Keyboard_Indicator/releases/latest)からZIPをダウンロードします。
 2. ZIPを解凍してフォルダ内の `loki.exe` を実行します。
 3. タスクバーにアイコンが表示されればOKです！
 
@@ -35,6 +35,13 @@ LOKIはWindowsのダークテーマ・ライトテーマに対応しており、
 - 右クリックするとメニューを表示
 
 します。
+
+Windowsの既定では、通知アイコンはしばらくすると収納されてしまいます。
+この動作は以下の手順で変更することができます。
+
+1. タスクバーを右クリックして「⚙タスクバーの設定」を選択。
+2. 「通知領域」の「表示するアイコンを表示します」のリンクをクリック。
+3. `loki.exe` または「常にすべてのアイコンを表示」のスイッチをオン。
 
 ## 使用許諾および免責事項
 

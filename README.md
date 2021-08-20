@@ -1,3 +1,7 @@
+[日本語のREADMEを読む](./README_ja.md)
+
+---
+
 # LOKI - the Keyboard Indicator
 
 Lightweight & Open source Keyboard Indicator for Windows 10
@@ -19,7 +23,7 @@ and thus is resource-friendly.
 
 ## Download & Usage
 
-You can get the zip of the app on [Release](https://github.com/inucat/LOKI_Keyboard_Indicator/releases)
+You can get the zip of the app on [Release](https://github.com/inucat/LOKI_Keyboard_Indicator/releases/latest)
 page.
 Download, then extract it and just double-click the `loki.exe`.
 Then the icons will appear in the Task tray!
@@ -33,6 +37,13 @@ On these icons:
 
 - Left click to toggle key state.
 - Right click to show menu.
+
+By Windows default, notification icons will be displayed only for a while.
+You may want to change this behavior by following steps:
+
+1. Right click on the Taskbar, then select "Taskbar settings (with Gear icon)".
+2. Scroll down to "Notification area", then select first link.
+3. Turn on `loki.exe` or the master switch to always show all icons.
 
 ## License & Disclaimer
 
