@@ -41,16 +41,16 @@ IRID_LINSERTA	ICON	"resource\\LAIns.ico"
 
 // --- Menu resources ---
 MID_NIMENU_DUMMYPARENT MENU {
-    POPUP "DUMMY" {
-        // MENUITEM "Num Lock",    MIID_NUMLOCK,       CHECKED
-        // MENUITEM "Caps Lock",   MIID_CAPSLOCK,      CHECKED
-        // MENUITEM "Scroll Lock", MIID_SCROLLLOCK,    CHECKED
-        // MENUITEM "Insert",      MIID_SCROLLLOCK,    CHECKED
-        // MENUITEM SEPARATOR
+    POPUP "X" {
+        MENUITEM "Num Lock",    MIID_NUMLOCK,       CHECKED
+        MENUITEM "Caps Lock",   MIID_CAPSLOCK,      CHECKED
+        MENUITEM "Scroll Lock", MIID_SCROLLLOCK,    CHECKED
+        MENUITEM "Insert",      MIID_INSERT,        CHECKED
+        MENUITEM SEPARATOR
         // MENUITEM "Notify when toggled", MIID_SENDNOTIFY,    CHECKED
         // MENUITEM "Notification Sound",  MIID_NOTIFYSOUND,   CHECKED
-        // MENUITEM "Autostart This App",  MIID_AUTOSTART,     INACTIVE
-        // MENUITEM SEPARATOR
+        MENUITEM "Launch on Start up",  MIID_AUTOSTART
+        MENUITEM SEPARATOR
         MENUITEM "About...",    MIID_ABOUT
         MENUITEM SEPARATOR
         MENUITEM "Quit",        MIID_EXIT
@@ -62,18 +62,29 @@ MID_NIMENU_DUMMYPARENT MENU {
 1 VERSIONINFO
 FILEVERSION RES_VERINFOnum
 PRODUCTVERSION RES_VERINFOnum
-FILEOS VOS_NT
+FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
 {
-    BLOCK "StringFileInfo" {
-        BLOCK "040904E4" {
-            VALUE "ProductName", RES_APPNAMEsz
-            VALUE "CompanyName", RES_AUTHORsz
-            VALUE "FileDescription", "Lightweight & Open source Keyboard Indicator"
-            VALUE "FileVersion", RES_APPVERsz
-            VALUE "ProductVersion", RES_APPVERsz
-            VALUE "InternalName", RES_CODENAMEsz
-            VALUE "OriginalFilename", "loki.exe"
+    // String & Var are both required to show version info
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "040904E4"
+        {
+            // VALUE "Comments", ""
+            VALUE "CompanyName", RES_AUTHOR_STR
+            VALUE "FileDescription", "LOKI - Lightweight & Open source Keyboard Indicator"
+            VALUE "FileVersion", RES_APPVER_STR
+            VALUE "InternalName", RES_EXEFILENAME
+            VALUE "LegalCopyright", "(C) 2021 inucat - All rights reserved."
+            // VALUE "LegalTrademarks", ""
+            VALUE "OriginalFilename", RES_EXEFILENAME
+            VALUE "ProductName", RES_APPNAME_STR
+            VALUE "ProductVersion", RES_APPVER_STR
+            // VALUE "Assembly Version", ""
         }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 0x409, 0x4E4
     }
 }

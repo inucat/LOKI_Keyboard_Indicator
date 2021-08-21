@@ -3,13 +3,14 @@
 #ifndef _RESOURCE_H_
 #define _RESOURCE_H_
 
-#define RES_APPNAMEsz       "LOKI - the Keyboard Indicator"
-#define RES_CODENAMEsz      "TRANQUIL_TURTLE"
-#define RES_APPVERsz        "0.1.1-BETA"
-#define RES_VERINFOnum      0,1,1,11
-#define TO_TEXT(val)        #val
-#define RES_RELEASEDATEsz   "2021/08/19"
-#define RES_AUTHORsz        "inucat"
+#define RES_APPNAME_STR     "LOKI - the Keyboard Indicator"
+#define RES_EXEFILENAME     "LOKI.exe"
+#define RES_CODENAME_STR    "TRANQUIL_TURTLE"
+#define RES_APPVER_STR      "0.2.0"
+#define RES_VERINFOnum      0,2,0,0
+// #define TO_TEXT(val)        #val
+#define RES_RELEASEDATE_STR "2021/08/21"
+#define RES_AUTHOR_STR      "inucat"
 
 #define MRID_MANIFEST   999
 
@@ -35,7 +36,6 @@
 #define IRID_LCAPSA     ((IRID_DNUMD) + 13)
 #define IRID_LSCROLLA   ((IRID_DNUMD) + 14)
 #define IRID_LINSERTA   ((IRID_DNUMD) + 15)
-// : 429 + 15 = 444
 
 // _ Menu ID
 #define MID_NIMENU_DUMMYPARENT   118

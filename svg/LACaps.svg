@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 8.4666664 8.4666668"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="LACaps.svg"
+   inkscape:export-filename="E:\4Win\GitHub\tranquil-turtle\resource\ScrOn32.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata
+     id="metadata4595">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="9.923612"
+     inkscape:cx="12.948914"
+     inkscape:cy="18.491251"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2"
+     inkscape:snap-midpoints="true"
+     inkscape:snap-text-baseline="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-global="true"
+     inkscape:snap-nodes="false"
+     inkscape:snap-others="true"
+     inkscape:snap-center="true"
+     units="px"
+     width="200px"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     showguides="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5188" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Invert"
+       id="filter87"
+       x="-0.0090013402"
+       y="-0.0052930151"
+       width="1.0180027"
+       height="1.010586">
+      <feColorMatrix
+         type="hueRotate"
+         values="180"
+         result="color1"
+         id="feColorMatrix83" />
+      <feColorMatrix
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="fbSourceGraphic"
+         id="feColorMatrix85" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix1484" />
+      <feColorMatrix
+         id="feColorMatrix1486"
+         type="hueRotate"
+         values="180"
+         result="color1"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix1488"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 -0.21 -0.72 -0.07 2 0 "
+         result="color2" />
+    </filter>
+  </defs>
+  <g
+     inkscape:label="BG10%Gray"
+     id="layer1"
+     style="display:inline;opacity:0.99;fill:none"
+     mask="none">
+    <rect
+       style="display:inline;opacity:1;fill:none;fill-opacity:1;stroke:#1a1a1a;stroke-width:0.532909;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       id="rect1167"
+       width="7.9337578"
+       height="7.9337578"
+       x="0.2664544"
+       y="0.2664544"
+       inkscape:label="KeyFrameFill" />
+  </g>
+  <g
+     id="layer2"
+     inkscape:label="Chars10%Gray"
+     style="display:inline;opacity:0.99;mix-blend-mode:normal;fill:#e6e6e6;stroke:#e6e6e6;filter:url(#filter87)"
+     transform="matrix(0.22132839,0,0,0.22133049,-7.7766255,-1.1460391)"
+     sodipodi:insensitive="true">
+    <g
+       aria-label="A"
+       id="text8593"
+       clip-path="none"
+       mask="none"
+       style="font-size:38.1px;line-height:1.25;font-family:'Source Code Variable';-inkscape-font-specification:'Source Code Variable, @wght=400';display:inline;fill:#1a1a1a;stroke:#1a1a1a;stroke-width:0.264583"
+       inkscape:label="CapsLock"
+       inkscape:export-filename="E:\4Win\GitHub\tranquil-turtle\resource\text8593.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       transform="matrix(1.0412184,0,0,1.0412184,-2.2367505,-1.0018014)">
+      <path
+         d="m 44.033334,36.801506 h 3.2385 l 4.3815,-13.944599 c 0.876299,-2.7813 1.714499,-5.5245 2.476499,-8.4201 h 0.1524 c 0.762,2.8956 1.6383,5.6388 2.4765,8.4201 l 4.3434,13.944599 h 3.3909 l -8.4201,-24.993599 h -3.619499 z m 4.4196,-7.5819 h 11.506199 v -2.5527 H 48.452934 Z"
+         id="path859"
+         inkscape:connector-curvature="0"
+         style="fill:#1a1a1a;stroke:#1a1a1a;stroke-linejoin:miter" />
+    </g>
+  </g>
+</svg>

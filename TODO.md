@@ -2,6 +2,6 @@
 
 [x] HiDPI Support
 
-[ ] Icon Visibility selection
+[x] Icon Visibility selection
 
 [ ] Balloon Notification & Tool tip
