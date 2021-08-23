@@ -47,7 +47,7 @@ MID_NIMENU_DUMMYPARENT MENU {
         MENUITEM "Scroll Lock", MIID_SCROLLLOCK,    CHECKED
         MENUITEM "Insert",      MIID_INSERT,        CHECKED
         MENUITEM SEPARATOR
-        // MENUITEM "Notify when toggled", MIID_SENDNOTIFY,    CHECKED
+        MENUITEM "Notify when toggled", MIID_SENDNOTIFY
         // MENUITEM "Notification Sound",  MIID_NOTIFYSOUND,   CHECKED
         MENUITEM "Launch on Start up",  MIID_AUTOSTART
         MENUITEM SEPARATOR

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2021-08-23
+
+### Added
+- Save & Load button visibility preference
+- Toggle notification
+
 ## [0.2.0] - 2021-08-21
 
 ### Added

@@ -6,10 +6,10 @@
 #define RES_APPNAME_STR     "LOKI - the Keyboard Indicator"
 #define RES_EXEFILENAME     "LOKI.exe"
 #define RES_CODENAME_STR    "TRANQUIL_TURTLE"
-#define RES_APPVER_STR      "0.2.0"
-#define RES_VERINFOnum      0,2,0,0
+#define RES_APPVER_STR      "0.3.0"
+#define RES_VERINFOnum      0,3,0,0
 // #define TO_TEXT(val)        #val
-#define RES_RELEASEDATE_STR "2021/08/21"
+#define RES_RELEASEDATE_STR "2021/08/23"
 #define RES_AUTHOR_STR      "inucat"
 
 #define MRID_MANIFEST   999
