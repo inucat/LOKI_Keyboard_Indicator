@@ -6,16 +6,13 @@
 #define RES_APPNAME_STR     "LOKI - the Keyboard Indicator"
 #define RES_EXEFILENAME     "LOKI.exe"
 #define RES_CODENAME_STR    "TRANQUIL_TURTLE"
-#define RES_APPVER_STR      "0.3.0"
-#define RES_VERINFOnum      0,3,0,0
-// #define TO_TEXT(val)        #val
-#define RES_RELEASEDATE_STR "2021/08/23"
+#define RES_APPVER_STR      "0.3.1"
+#define RES_VERINFOnum      0,3,1,0
+#define RES_RELEASEDATE_STR "2021/08/26"
 #define RES_AUTHOR_STR      "inucat"
 
-#define MRID_MANIFEST   999
-
 // _ Icon Resource ID
-#define IRID_APPICON    100
+#define IRID_APPICON        100
 // _ +4 for `ACTIVE`, +8 for `LIGHT` variants respectively
 #define IRID_ACTIVEOFFSET   4
 #define IRID_LIGHTOFFSET    8
@@ -50,8 +47,5 @@
 #define MIID_AUTOSTART  225
 #define MIID_ABOUT      226
 #define MIID_EXIT       227
-
-// _ Version Info Resource ID
-#define VIID_VERSION    328
 
 #endif

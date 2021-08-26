@@ -30,7 +30,8 @@ typedef enum tagAPPDEFINEDWINDOWMESSAGE {
     WM_NOTIFYICONCLICKED = ((WM_APP) + 100),
     WM_UITHEMECHANGED,
     WM_LLKEYHOOKED,
-    WM_REDRAWNOTIFYICON
+    WM_REDRAWNOTIFYICON,
+    WM_SAVINGPREFERENCES
 } ADWM;
 
 // ID of the items in the tray
@@ -410,6 +411,7 @@ LRESULT CALLBACK WndProc(
         return 0;
 
     // _ Window close message
+    case WM_QUERYENDSESSION:
     case WM_CLOSE: {
         HANDLE hfile = CreateFile(
             TEXT(FN_CONFIGFILE), GENERIC_WRITE, 0, NULL,
@@ -435,6 +437,7 @@ LRESULT CALLBACK WndProc(
             LPCWSTR str = L"WriteFile() Failed!";
             WriteConsole(hConsole, str, lstrlen(str), NULL, NULL);
         }
+        if (uMsg == WM_QUERYENDSESSION) return TRUE;
         DestroyWindow(hwnd);
         return 0;
     }

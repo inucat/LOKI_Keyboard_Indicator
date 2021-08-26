@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.1] - 2021-08-26
+
+### Fixed
+- Add preference autosave function before Log off & Shutdown
+
 ## [0.3.0] - 2021-08-23
 
 ### Added
