@@ -31,4 +31,4 @@ run:	${EXEC}
 all: clean ${EXEC}
 
 clean:
-	${RM} ${OBJS} ${EXEC}
+	${RM} ${OBJS} ${EXEC} *.ini
