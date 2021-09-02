@@ -1,15 +1,17 @@
-#define UNICODE                     // UTF-8 Standard
-#define NTDDI_VERSION NTDDI_VISTA   // Targeted OS is Vista or later
-#define _WIN32_WINNT _WIN32_WINNT_VISTA   // For Reg access func
-#include <Windows.h>                // Where it all begins...
-#include <windowsx.h>               // GET_X(,Y)_LPARAM
-// #include <WinUser.h>
-#include "Resource.h"
+#define UNICODE                             // UTF-8 Standard
+#define NTDDI_VERSION NTDDI_VISTA           // For `NOTIFYICONDATA.uVersion = 4'
+#define _WIN32_WINNT _WIN32_WINNT_VISTA     // For Registry functions
+#include <Windows.h>
+#include <windowsx.h>                       // GET_X(,Y)_LPARAM
+#include "Resource.h"                       // My original resource definitions
 
 // #define _ENABLE_APP_DEBUG_
 
-// Config Filename
-#define FN_CONFIGFILE       "LOKIpreference.dat"
+/// Config Filename
+#define FN_CONFIGFILE       ".\\loki.ini"
+#define FN_CONFIGSECT       "HiddenFlag"
+#define FN_NOTIFYSECT       "Notification"
+#define FN_NTFYSECKEY       "Enabled"
 
 // Num of the icons of keys to observe
 #define NOTIFYICON_TOTAL    4
@@ -129,12 +131,11 @@ LRESULT CALLBACK WndProc(
     static NOTIFYICONDATA nid[NOTIFYICON_TOTAL];    // Notification Icon data
     static DWORD fLightThemeUsed;                   // Flag being set if Light Theme used
     static HHOOK hKeyHook;                          // Handle to keyboard hook
-    static BOOL fNotify;
+    static BOOL fNotify;                            // Notification switch
     TCHAR szTemp[256] = {0};                        // Multipurppose string buffer
     MENUITEMINFO mii;                               // Menu item to check its state
-    DWORD dwRegValueSize;                           // Reg value size to obtain
-    WCHAR lpExePath[MAX_PATH];                    // Path to executable
-    HANDLE hFile;
+    DWORD dwRegValueSize;                           // RegValue size to obtain
+    WCHAR lpExePath[MAX_PATH];                      // Path to executable, to register Autostart
 
     switch (uMsg)
     {
@@ -142,19 +143,12 @@ LRESULT CALLBACK WndProc(
     // ----- THE APPLICATION LAUNCHED ----- //
     //////////////////////////////////////////
     case WM_CREATE:
-        // Open config file
-        hFile = CreateFile(
-            TEXT(FN_CONFIGFILE), GENERIC_READ,
-            0, NULL, OPEN_EXISTING,
-            FILE_ATTRIBUTE_READONLY, NULL);
         // Get Handle to Console with Standard output
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 #ifdef _ENABLE_APP_DEBUG_
         if (hConsole == INVALID_HANDLE_VALUE)
             MessageBox(NULL, L"Console handle couldn't Obtained!!", L"", MB_ICONERROR);
 #endif
-        // WriteConsole(hConsole, L"HELLO WORLD\n", numchars, &len, NULL);
-        // ^ (Console handle, String variable, NUM OF its chars, Ptr to num of actually written chars, RESERVED)
         hMenu = LoadMenu(NULL, MAKEINTRESOURCE(MID_NIMENU_DUMMYPARENT));
         // ^ (Inst. containing Resource, ResName or MKINTRES(num))
         hSubMenu = GetSubMenu(hMenu, 0);
@@ -163,28 +157,22 @@ LRESULT CALLBACK WndProc(
         fNotify = FALSE;
         DetectUITheme(&dwRegValueSize, &fLightThemeUsed);
         for (INT i=0; i < 4; i++) {
-            DWORD dwHidden = 0;
             nid[i].cbSize = sizeof(NOTIFYICONDATA);
             nid[i].hWnd = hwnd;
             nid[i].uCallbackMessage = WM_NOTIFYICONCLICKED;     // App-defined WMes from icons
             nid[i].uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_SHOWTIP | NIF_STATE;// | NIF_INFO;
             nid[i].uVersion = NOTIFYICON_VERSION_4;             // Easy to get clicked position, or use GetRect()
-            if (hFile != INVALID_HANDLE_VALUE) {
-                ReadFile(
-                    hFile,
-                    &dwHidden, sizeof(dwHidden),
-                    NULL, NULL);
+            nid[i].dwStateMask = NIS_HIDDEN;
+            if (GetPrivateProfileInt(TEXT(FN_CONFIGSECT), tki[i].szTip, 0, TEXT(FN_CONFIGFILE)))
+            {
                 mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
                 mii.fMask = MIIM_STATE;                 // Must specify first the information to get
                 GetMenuItemInfo(hSubMenu, tki[i].nMiid, FALSE, &mii);   // Errno 0x57 returned if hMenu is incorrect
-                if ( dwHidden & NIS_HIDDEN ) {
-                    uIconCounter--;
-                    mii.fState &= ~MFS_CHECKED;
-                    SetMenuItemInfo(hSubMenu, tki[i].nMiid, FALSE, &mii);
-                }
+                mii.fState &= ~MFS_CHECKED;
+                SetMenuItemInfo(hSubMenu, tki[i].nMiid, FALSE, &mii);
+                uIconCounter--;
+                nid[i].dwState = NIS_HIDDEN;
             }
-            nid[i].dwState = dwHidden;
-            nid[i].dwStateMask = NIS_HIDDEN;
             nid[i].dwInfoFlags = NIIF_INFO;                     // Balloon Icon & Sound attr.
             INT rid = tki[i].nIrid + (GetKeyState(tki[i].nVkey) & KS_TOGGLEACTIVE) * IRID_ACTIVEOFFSET
                         + fLightThemeUsed * IRID_LIGHTOFFSET;   // Icon resource ID
@@ -205,10 +193,9 @@ LRESULT CALLBACK WndProc(
             DestroyWindow(hwnd);
         }
 
+        /// Check whether Autostart is enabled
         dwRegValueSize = sizeof(lpExePath);
-        if (RegGetValue(HKEY_CURRENT_USER,
-                TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI),
-                RRF_RT_REG_SZ, NULL, lpExePath, &dwRegValueSize) == ERROR_SUCCESS)
+        if (RegGetValue(HKEY_CURRENT_USER, TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI), RRF_RT_REG_SZ, NULL, lpExePath, &dwRegValueSize) == ERROR_SUCCESS)
         {
             mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
             mii.fMask = MIIM_STATE;                 // Must specify first the information to get
@@ -217,18 +204,8 @@ LRESULT CALLBACK WndProc(
             SetMenuItemInfo(hSubMenu, MIID_AUTOSTART, FALSE, &mii);
         }
 
-        if (hFile != INVALID_HANDLE_VALUE) {
-            ReadFile(hFile, &fNotify, sizeof(fNotify), NULL, NULL);
-            mii.cbSize = sizeof(MENUITEMINFO);
-            mii.fMask = MIIM_STATE;
-            GetMenuItemInfo(hSubMenu, MIID_SENDNOTIFY, FALSE, &mii);
-            if ( fNotify ) {
-                mii.fState |= MFS_CHECKED;
-                SetMenuItemInfo(hSubMenu, MIID_SENDNOTIFY, FALSE, &mii);
-            }
-        }
-
-        CloseHandle(hFile);
+        /// Get "Send Notification" flag value
+        fNotify = GetPrivateProfileInt(TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY), 0, TEXT(FN_CONFIGFILE));
 
         return 0;
 
@@ -259,7 +236,7 @@ LRESULT CALLBACK WndProc(
                 inputs[0].ki.wVk = inputs[1].ki.wVk = tki[i].nVkey;
                 inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
                 SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
-                // Changing icon state here may cause an bug...?
+                /// Changing icon state here may cause an bug...?
                 INT rid = tki[i].nIrid + IRID_ACTIVEOFFSET * (GetKeyState(tki[i].nVkey) & KS_TOGGLEACTIVE)
                             + fLightThemeUsed * IRID_LIGHTOFFSET;
                 nid[i].hIcon = (HICON)LoadImage((HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
@@ -317,9 +294,6 @@ LRESULT CALLBACK WndProc(
 
         case MIID_AUTOSTART:
         {
-            // mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
-            // mii.fMask = MIIM_STATE;                 // Must specify first the information to get
-            // GetMenuItemInfo(hSubMenu, MIID_AUTOSTART, FALSE, &mii);   // Errno 0x57 returned if hMenu is incorrect
             dwRegValueSize = sizeof(lpExePath);
             if (mii.fState & MFS_CHECKED)
             {
@@ -357,21 +331,8 @@ LRESULT CALLBACK WndProc(
         case MIID_EXIT: SendMessage(hwnd, WM_CLOSE, 0, 0);
             break;
         }
-        // Shell_NotifyIcon(NIM_SETFOCUS, &nid[0]);
         return 0;
     }
-
-    // case WM_REDRAWNOTIFYICON:
-    //     for (INT i=0; i < NOTIFYICON_TOTAL; i++)
-    //     {
-    //         if (tki[i].nVkey != (INT)wParam)   continue;
-    //         INT rid = tki[i].nIrid + IRID_ACTIVEOFFSET * (GetKeyState(tki[i].nVkey) & KS_TOGGLEACTIVE)
-    //                     + fLightThemeUsed * IRID_LIGHTOFFSET;
-    //         nid[i].hIcon = (HICON)LoadImage((HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-    //                                         MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
-    //         Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
-    //     }
-    //     return 0;
 
     case WM_LLKEYHOOKED:
         for (INT i=0; i < NOTIFYICON_TOTAL; i++) {
@@ -410,33 +371,19 @@ LRESULT CALLBACK WndProc(
         }
         return 0;
 
-    // _ Window close message
+    // _ Window close & Session end message
     case WM_QUERYENDSESSION:
     case WM_CLOSE: {
-        HANDLE hfile = CreateFile(
-            TEXT(FN_CONFIGFILE), GENERIC_WRITE, 0, NULL,
-            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (INVALID_HANDLE_VALUE != hfile) {
-            LPCSTR lpszS = "Char";
-            for (int i=0; i<NOTIFYICON_TOTAL; i++) {
-                int dwHidden = (nid[i].dwState & NIS_HIDDEN);
-                // CHAR str[128] = {0};
-                WriteFile(
-                    hfile,
-                    &dwHidden,
-                    sizeof(dwHidden), NULL, NULL);
-            }
-            WriteFile(
-                hfile,
-                &fNotify,
-                sizeof(fNotify), NULL, NULL);
-            FlushFileBuffers(hfile);
-            CloseHandle(hfile);
+        for (int i=0; i<NOTIFYICON_TOTAL; i++) {
+            LPCTSTR flagstr =
+                (nid[i].dwState & NIS_HIDDEN) ? TEXT("1") : TEXT("0");
+            WritePrivateProfileString(
+                TEXT(FN_CONFIGSECT), tki[i].szTip, flagstr, TEXT(FN_CONFIGFILE));
         }
-        else {
-            LPCWSTR str = L"WriteFile() Failed!";
-            WriteConsole(hConsole, str, lstrlen(str), NULL, NULL);
-        }
+        WritePrivateProfileString(
+            TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY),
+            fNotify ? TEXT("1") : TEXT("0"), TEXT(FN_CONFIGFILE));
+        WritePrivateProfileString(NULL, NULL, NULL, NULL);  // Flush buffer
         if (uMsg == WM_QUERYENDSESSION) return TRUE;
         DestroyWindow(hwnd);
         return 0;
@@ -456,12 +403,13 @@ LRESULT CALLBACK WndProc(
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-// _ Need to add compile option `-ladvapi32` to use Reg*()
+/// Need to add compile option `-ladvapi32` to use Reg*()
 static void DetectUITheme(DWORD *pdwBufSize, DWORD *pfLightTheme) {
     *pdwBufSize = sizeof(*pfLightTheme);
-    RegGetValue(HKEY_CURRENT_USER,
-                TEXT(REGKEYPATH_THEMEMODEsz), TEXT(REG_VALUENAME),
-                RRF_RT_REG_DWORD, NULL, pfLightTheme, pdwBufSize);
+    RegGetValue(
+        HKEY_CURRENT_USER,
+        TEXT(REGKEYPATH_THEMEMODEsz), TEXT(REG_VALUENAME),
+        RRF_RT_REG_DWORD, NULL, pfLightTheme, pdwBufSize);
 }
 
 LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
