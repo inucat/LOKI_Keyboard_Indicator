@@ -31,9 +31,7 @@
 typedef enum tagAPPDEFINEDWINDOWMESSAGE {
     WM_NOTIFYICONCLICKED = ((WM_APP) + 100),
     WM_UITHEMECHANGED,
-    WM_LLKEYHOOKED,
-    WM_REDRAWNOTIFYICON,
-    WM_SAVINGPREFERENCES
+    WM_LLKEYHOOKED
 } ADWM;
 
 // ID of the items in the tray
@@ -58,6 +56,7 @@ typedef struct tagTHEKEYINFO {
 
 HANDLE hConsole;    // For console debugging
 HWND hWindow;       // For KeyHookProc
+static HMENU hMenu, hSubMenu;                   // Icon Context Menu
 
 // --->
 
@@ -66,6 +65,9 @@ HWND hWindow;       // For KeyHookProc
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam);
 static void DetectUITheme(DWORD *pdwBufSize, DWORD *pfLightTheme);
+
+/// Check/Uncheck Menu Item
+static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked);
 
 // --->
 
@@ -126,14 +128,13 @@ LRESULT CALLBACK WndProc(
         {IRID_DSCROLLD, MIID_SCROLLLOCK, NIID_SCROLLLOCK, VK_SCROLL, 0, L"Scroll Lock"},
         {IRID_DINSERTD, MIID_INSERT, NIID_INSERT, VK_INSERT, 0, L"Insert"}
     };
-    static HMENU hMenu, hSubMenu;                   // Icon Context Menu
-    static UINT uIconCounter;                       // Number of the key icons currently shown
+    static UINT uIconCounter = 4;                   // Number of the key icons currently shown
     static NOTIFYICONDATA nid[NOTIFYICON_TOTAL];    // Notification Icon data
-    static DWORD fLightThemeUsed;                   // Flag being set if Light Theme used
+    static DWORD fLightThemeUsed = FALSE;           // Flag being set if Light Theme used
     static HHOOK hKeyHook;                          // Handle to keyboard hook
-    static BOOL fNotify;                            // Notification switch
+    static BOOL fNotify = FALSE;                    // Notification switch
+    static BOOL fAutostart = FALSE;                 // Autostart switch
     TCHAR szTemp[256] = {0};                        // Multipurppose string buffer
-    MENUITEMINFO mii;                               // Menu item to check its state
     DWORD dwRegValueSize;                           // RegValue size to obtain
     WCHAR lpExePath[MAX_PATH];                      // Path to executable, to register Autostart
 
@@ -153,25 +154,19 @@ LRESULT CALLBACK WndProc(
         // ^ (Inst. containing Resource, ResName or MKINTRES(num))
         hSubMenu = GetSubMenu(hMenu, 0);
         // ^ (Parent, Relative Position in parent of sub)
-        uIconCounter = 4;
-        fNotify = FALSE;
         DetectUITheme(&dwRegValueSize, &fLightThemeUsed);
         for (INT i=0; i < 4; i++) {
             nid[i].cbSize = sizeof(NOTIFYICONDATA);
             nid[i].hWnd = hwnd;
             nid[i].uCallbackMessage = WM_NOTIFYICONCLICKED;     // App-defined WMes from icons
-            nid[i].uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_SHOWTIP | NIF_STATE;// | NIF_INFO;
+            nid[i].uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_SHOWTIP | NIF_STATE;
             nid[i].uVersion = NOTIFYICON_VERSION_4;             // Easy to get clicked position, or use GetRect()
             nid[i].dwStateMask = NIS_HIDDEN;
             if (GetPrivateProfileInt(TEXT(FN_CONFIGSECT), tki[i].szTip, 0, TEXT(FN_CONFIGFILE)))
             {
-                mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
-                mii.fMask = MIIM_STATE;                 // Must specify first the information to get
-                GetMenuItemInfo(hSubMenu, tki[i].nMiid, FALSE, &mii);   // Errno 0x57 returned if hMenu is incorrect
-                mii.fState &= ~MFS_CHECKED;
-                SetMenuItemInfo(hSubMenu, tki[i].nMiid, FALSE, &mii);
-                uIconCounter--;
                 nid[i].dwState = NIS_HIDDEN;
+                uIconCounter--;
+                SetMenuItemCheckState(tki[i].nMiid, FALSE);
             }
             nid[i].dwInfoFlags = NIIF_INFO;                     // Balloon Icon & Sound attr.
             INT rid = tki[i].nIrid + (GetKeyState(tki[i].nVkey) & KS_TOGGLEACTIVE) * IRID_ACTIVEOFFSET
@@ -189,24 +184,25 @@ LRESULT CALLBACK WndProc(
         hKeyHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyHookProc, NULL, 0);
         // ^ (HookID, fnHookProc, Inst. containing HookProc or NULL for this Inst., ThreadID to be hooked or 0 for global)
         if (!hKeyHook) {
-            MessageBox(NULL, L"Couldn't set the keyboard hook!", TEXT(RES_APPNAME_STR), MB_ICONERROR);
-            DestroyWindow(hwnd);
+            MessageBox(NULL, L"An error has been occurred with SetWindowsHookEx() and the program will be terminated.", TEXT(RES_APPNAME_STR), MB_ICONERROR);
+            SendMessage(hwnd, WM_DESTROY, 0, 0);
         }
 
-        /// Check whether Autostart is enabled
+        /// Test whether Autostart is enabled
         dwRegValueSize = sizeof(lpExePath);
-        if (RegGetValue(HKEY_CURRENT_USER, TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI), RRF_RT_REG_SZ, NULL, lpExePath, &dwRegValueSize) == ERROR_SUCCESS)
+        GetModuleFileName(NULL, szTemp, sizeof(szTemp));
+        RegGetValue(HKEY_CURRENT_USER, TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI), RRF_RT_REG_SZ, NULL, lpExePath, &dwRegValueSize);
+        if ( !lstrcmp(lpExePath, szTemp) )
         {
-            mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
-            mii.fMask = MIIM_STATE;                 // Must specify first the information to get
-            GetMenuItemInfo(hSubMenu, MIID_AUTOSTART, FALSE, &mii);   // Errno 0x57 returned if hMenu is incorrect
-            mii.fState |= MFS_CHECKED;
-            SetMenuItemInfo(hSubMenu, MIID_AUTOSTART, FALSE, &mii);
+            fAutostart = TRUE;
+            SetMenuItemCheckState(MIID_AUTOSTART, TRUE);
         }
 
         /// Get "Send Notification" flag value
         fNotify = GetPrivateProfileInt(TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY), 0, TEXT(FN_CONFIGFILE));
-
+        if (fNotify) {
+            SetMenuItemCheckState(MIID_SENDNOTIFY, TRUE);
+        }
         return 0;
 
     ////////////////////////////////////////
@@ -215,19 +211,21 @@ LRESULT CALLBACK WndProc(
     case WM_NOTIFYICONCLICKED:
         if ( LOWORD(lParam) == WM_CONTEXTMENU )
         {   // : Context menu appeared
-            POINT pt = {};                  // To get Mouse position when an icon is clicked
+            POINT pt = {};                  // To get Mouse Click position on icons
             pt.x = GET_X_LPARAM(wParam);    // Manifest solved the HiDPI problem
             pt.y = GET_Y_LPARAM(wParam);
-            // wsprintf(szTemp, L"x = %d, y = %d\n", pt.x, pt.y);
-            // WriteConsole(hConsole, szTemp, lstrlen(szTemp), NULL, NULL);
+#ifdef _ENABLE_APP_DEBUG_
+            wsprintf(szTemp, L"x = %d, y = %d\n", pt.x, pt.y);
+            WriteConsole(hConsole, szTemp, lstrlen(szTemp), NULL, NULL);
+#endif
             SetForegroundWindow(hwnd);          // Prevent Menu from remaining or disappearing
             TrackPopupMenu( hSubMenu, TPM_BOTTOMALIGN | TPM_LEFTALIGN,
                             pt.x, pt.y, 0, hwnd, NULL);
             PostMessage(hwnd, WM_NULL, 0, 0);   // Same as above
         }
         else if ( LOWORD(lParam) == WM_LBUTTONUP )
-        {   // : Icons are clicked by LEFT button to toggle keys
-            INPUT inputs[4] = {};               // To send KeyInput to toggle their states
+        {   // : Icons are Left clicked to toggle keys
+            INPUT inputs[4];                    // To send KeyInput to toggle their states
             ZeroMemory(inputs, sizeof(inputs));
             WORD niid = HIWORD(lParam);         // NIID of the clicked icon
             for (INT i=0; i < NOTIFYICON_TOTAL; i++) {
@@ -251,10 +249,8 @@ LRESULT CALLBACK WndProc(
     // ----- CONTEXT MENU IS PRESSED ----- //
     /////////////////////////////////////////
     case WM_COMMAND: {
-        WORD wmId = LOWORD(wParam);             // Which MenuItem is selected
-        mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
-        mii.fMask = MIIM_STATE;                 // Must specify first the information to get
-        GetMenuItemInfo(hSubMenu, wmId, FALSE, &mii);   // Errno 0x57 returned if hMenu is incorrect
+        WORD wmId = LOWORD(wParam);     // Which MenuItem is selected
+        // BOOL fSetCheck = FALSE;
         switch (wmId)
         {
         case MIID_NUMLOCK:
@@ -266,59 +262,43 @@ LRESULT CALLBACK WndProc(
                     INT niid = tki[i].nNiid;
                     if (nid[niid].dwState & NIS_HIDDEN) {
                         uIconCounter++;
+                        SetMenuItemCheckState(wmId, TRUE);
                     } else if (uIconCounter == 1) {
                         MessageBox(NULL, L"At least one icon must be kept.", TEXT(RES_APPNAME_STR), MB_ICONEXCLAMATION | MB_OK);
                         break;
                     } else {
                         uIconCounter--;
+                        SetMenuItemCheckState(wmId, FALSE);
                     }
                     nid[niid].dwState ^= NIS_HIDDEN;
                     Shell_NotifyIcon(NIM_MODIFY, &(nid[niid]));
-                    mii.fState ^= MFS_CHECKED;                      // Toggle Check
-                    SetMenuItemInfo(hSubMenu, wmId, FALSE, &mii);   // Then OVERRIDE the menu item
                     break;
                 }
             }
             break;
 
         case MIID_SENDNOTIFY:
-            if (fNotify) {
-                mii.fState &= ~MFS_CHECKED;
-            }
-            else {
-                mii.fState |= MFS_CHECKED;
-            }
             fNotify = !fNotify;
-            SetMenuItemInfo(hSubMenu, MIID_SENDNOTIFY, FALSE, &mii);
-            return 0;
+            SetMenuItemCheckState(wmId, fNotify);
+            break;
 
         case MIID_AUTOSTART:
-        {
-            dwRegValueSize = sizeof(lpExePath);
-            if (mii.fState & MFS_CHECKED)
-            {
-                RegDeleteKeyValue(HKEY_CURRENT_USER,
-                    TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI));
-                mii.fState &= ~MFS_CHECKED;
-                SetMenuItemInfo(hSubMenu, MIID_AUTOSTART, FALSE, &mii);
-            }
-            else
-            {
+            if (fAutostart) {
+                RegDeleteKeyValue(HKEY_CURRENT_USER, TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI));
+                SetMenuItemCheckState(wmId, FALSE);
+            } else {
+                dwRegValueSize = sizeof(lpExePath);
                 GetModuleFileName(NULL, lpExePath, sizeof(lpExePath));
                 if (RegSetKeyValue(HKEY_CURRENT_USER,
                     TEXT(REGSUBKEY_USERSTARTUP), TEXT(REGVALUE_LOKI),
                     RRF_RT_REG_SZ, lpExePath, dwRegValueSize) == ERROR_SUCCESS)
                 {
-                    mii.fState |= MFS_CHECKED;
-                    SetMenuItemInfo(hSubMenu, MIID_AUTOSTART, FALSE, &mii);
-                }
-                else
-                {
-                    MessageBox(NULL, L"Reg write failed!", TEXT(RES_APPNAME_STR), MB_ICONERROR);
+                    SetMenuItemCheckState(wmId, TRUE);
+                } else {
+                    MessageBox(NULL, L"Autostart registration failed.", TEXT(RES_APPNAME_STR), MB_ICONERROR);
                 }
             }
-
-        }
+            fAutostart = !fAutostart;
             break;
 
         case MIID_ABOUT:
@@ -344,7 +324,7 @@ LRESULT CALLBACK WndProc(
                                             MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
             if (fNotify) {
                 nid[i].uFlags |= NIF_INFO;
-                wsprintf(szTemp, L"%s: %s", tki[i].szTip, fKeyState ? L"On" : L"OFF");
+                wsprintf(szTemp, L"%s: %s", tki[i].szTip, fKeyState ? L"On" : L"Off");
                 lstrcpy(nid[i].szInfo, szTemp);
             }
             Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
@@ -355,10 +335,8 @@ LRESULT CALLBACK WndProc(
 
     case WM_UITHEMECHANGED:
         for (INT i=0; i < NOTIFYICON_TOTAL; i++) {
-            INT rid = tki[i].nIrid + IRID_ACTIVEOFFSET * (GetKeyState(tki[i].nVkey) & KS_TOGGLEACTIVE)
-                        + fLightThemeUsed * IRID_LIGHTOFFSET;
-            nid[i].hIcon = (HICON)LoadImage((HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE),
-                                            MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
+            INT rid = tki[i].nIrid + IRID_ACTIVEOFFSET * (GetKeyState(tki[i].nVkey) & KS_TOGGLEACTIVE) + fLightThemeUsed * IRID_LIGHTOFFSET;
+            nid[i].hIcon = (HICON)LoadImage((HINSTANCE) GetWindowLongPtr(hwnd, GWLP_HINSTANCE), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
             Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
         }
         return 0;
@@ -375,10 +353,8 @@ LRESULT CALLBACK WndProc(
     case WM_QUERYENDSESSION:
     case WM_CLOSE: {
         for (int i=0; i<NOTIFYICON_TOTAL; i++) {
-            LPCTSTR flagstr =
-                (nid[i].dwState & NIS_HIDDEN) ? TEXT("1") : TEXT("0");
-            WritePrivateProfileString(
-                TEXT(FN_CONFIGSECT), tki[i].szTip, flagstr, TEXT(FN_CONFIGFILE));
+            LPCTSTR flagstr = (nid[i].dwState & NIS_HIDDEN) ? TEXT("1") : TEXT("0");
+            WritePrivateProfileString( TEXT(FN_CONFIGSECT), tki[i].szTip, flagstr, TEXT(FN_CONFIGFILE) );
         }
         WritePrivateProfileString(
             TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY),
@@ -421,4 +397,18 @@ LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
         }
     }
     return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked)
+{
+    MENUITEMINFO mii = {0};
+    mii.cbSize = sizeof(MENUITEMINFO);      // Needed before obtain MenuItem
+    mii.fMask = MIIM_STATE;                 // Must specify first the information to get
+    GetMenuItemInfo(hSubMenu, uMenuItemId, FALSE, &mii);   // Errno 0x57 returned if hMenu is incorrect
+    if (fChecked) {
+        mii.fState |= MFS_CHECKED;
+    } else {
+        mii.fState &= ~MFS_CHECKED;
+    }
+    SetMenuItemInfo(hSubMenu, uMenuItemId, FALSE, &mii);
 }

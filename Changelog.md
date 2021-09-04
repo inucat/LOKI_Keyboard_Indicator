@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.1] - 2021-09-04
+
+### Fixed
+- Fixed menu's small bug
+
 ## [0.4.0] - 2021-09-02
 
 ### Changed
