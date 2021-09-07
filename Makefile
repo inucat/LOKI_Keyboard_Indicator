@@ -6,8 +6,8 @@ OBJS	= $(SRC:.cpp=.o)
 EXEC	= LOKI.exe
 
 CC		= g++
-CFLAGS	= -Wall -O3 -ladvapi32
-LDFLAGS	= -mwindows
+CFLAGS	= -Wall -O3 #-ladvapi32 # -lPathcch
+LDFLAGS	= -lshlwapi -mwindows
 
 WINDRES	= windres
 RC		= AppResources.rc

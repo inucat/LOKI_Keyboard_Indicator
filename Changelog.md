@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.2] - 2021-09-07
+
+### Fixed
+- Preference problem of autostart ([Issue #2](https://github.com/inucat/LOKI_Keyboard_Indicator/issues/2))
+
 ## [0.4.1] - 2021-09-04
 
 ### Fixed

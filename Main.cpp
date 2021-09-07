@@ -1,79 +1,41 @@
-#define UNICODE                             // UTF-8 Standard
-#define NTDDI_VERSION NTDDI_VISTA           // For `NOTIFYICONDATA.uVersion = 4'
-#define _WIN32_WINNT _WIN32_WINNT_VISTA     // For Registry functions
+#define UNICODE         /// UTF-8 based
+#define NTDDI_VERSION NTDDI_VISTA           /// For `NOTIFYICONDATA.uVersion = 4'
+#define _WIN32_WINNT _WIN32_WINNT_VISTA     /// For Registry functions
+// #include <PathCch.h>    /// For PathCchRemoveFileSpec (preferred but link error, retry in a while)
+#include <Shlwapi.h>    /// For PathRemoveFileSpec (deprecated though)
 #include <Windows.h>
-#include <windowsx.h>                       // GET_X(,Y)_LPARAM
-#include "Resource.h"                       // My original resource definitions
+#include <windowsx.h>   /// GET_X(,Y)_LPARAM
+#include "Resource.h"   /// My resource definitions
+#include "Main.h"       /// etc.
 
-// #define _ENABLE_APP_DEBUG_
+// #define _CONSOLE_DEBUG
 
-/// Config Filename
-#define FN_CONFIGFILE       ".\\loki.ini"
-#define FN_CONFIGSECT       "HiddenFlag"
-#define FN_NOTIFYSECT       "Notification"
-#define FN_NTFYSECKEY       "Enabled"
-
-// Num of the icons of keys to observe
-#define NOTIFYICON_TOTAL    4
-
-// Toggle key active state
-#define KS_TOGGLEACTIVE     1
-
-// Reg key and value name containing current UI theme (Dark or Light)
-#define REGKEYPATH_THEMEMODEsz  "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
-#define REG_VALUENAME           "AppsUseLightTheme"
-
-#define REGSUBKEY_USERSTARTUP   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
-#define REGVALUE_LOKI           "LOKI-{48D10A91-BF2A-40A4-AE41-55BA0662EC6E}"       // Value name:value is the path to LOKI.exe
-
-/// Application-defined Window Messages
-/// The values over WM_APP can be used.
-typedef enum tagAPPDEFINEDWINDOWMESSAGE {
-    WM_NOTIFYICONCLICKED = ((WM_APP) + 100),
-    WM_UITHEMECHANGED,
-    WM_LLKEYHOOKED
-} ADWM;
-
-// ID of the items in the tray
-enum tagNOTIFYICONID {
-    NIID_NUMLOCK,
-    NIID_CAPSLOCK,
-    NIID_SCROLLLOCK,
-    NIID_INSERT
-};
-
-// Struct: Store the data of each key
-typedef struct tagTHEKEYINFO {
-    INT nIrid;
-    INT nMiid;
-    INT nNiid;
-    INT nVkey;
-    INT nFlagMask;
-    LPCTSTR szTip;
-} THEKEYINFO;
-
-// <!-- Global Variables
+// <!-- Global Variables -->
 
 HANDLE hConsole;    // For console debugging
 HWND hWindow;       // For KeyHookProc
 static HMENU hMenu, hSubMenu;                   // Icon Context Menu
+static TCHAR szConfPath[MAX_PATH];
 
-// --->
+// <!--- Prototype declaration --->
 
-// <!--- Prototype declaration ---
+/// Check/Uncheck Menu Item
+/// @param uMenuItemId Menu item ID
+/// @param fChecked Checked state to set (TRUE=checked, FALSE=unchecked)
+static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked);
+
+/// Detect which UI Theme currently applied, Dark or Light
+/// @deprecated This function will be replaced with the one returning boolean.
+/// @param pdwBufSize
+/// @param pfLightTheme
+static void DetectUITheme(DWORD *pdwBufSize, DWORD *pfLightTheme);
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam);
-static void DetectUITheme(DWORD *pdwBufSize, DWORD *pfLightTheme);
 
-/// Check/Uncheck Menu Item
-static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked);
-
-// --->
 
 /// Entry point
-int WINAPI WinMain(
-    HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int nCmdShow)
 {
     TCHAR szAppName[] = TEXT(RES_CODENAME_STR);
     WNDCLASS wc;
@@ -104,7 +66,7 @@ int WINAPI WinMain(
     );
     if (!hwnd) return 0;
 
-#ifdef _ENABLE_APP_DEBUG_
+#ifdef _CONSOLE_DEBUG
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
 #endif
@@ -119,9 +81,8 @@ int WINAPI WinMain(
 }
 
 /// Window Procedure Func.
-LRESULT CALLBACK WndProc(
-    HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
-){
+LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
     static const THEKEYINFO tki[NOTIFYICON_TOTAL] = {
         {IRID_DNUMD, MIID_NUMLOCK, NIID_NUMLOCK, VK_NUMLOCK, 0, L"Num Lock"},
         {IRID_DCAPSD, MIID_CAPSLOCK, NIID_CAPSLOCK, VK_CAPITAL, 0, L"Caps Lock"},
@@ -130,11 +91,11 @@ LRESULT CALLBACK WndProc(
     };
     static UINT uIconCounter = 4;                   // Number of the key icons currently shown
     static NOTIFYICONDATA nid[NOTIFYICON_TOTAL];    // Notification Icon data
-    static DWORD fLightThemeUsed = FALSE;           // Flag being set if Light Theme used
+    static DWORD fLightThemeUsed;           // Flag being set if Light Theme used
     static HHOOK hKeyHook;                          // Handle to keyboard hook
     static BOOL fNotify = FALSE;                    // Notification switch
     static BOOL fAutostart = FALSE;                 // Autostart switch
-    TCHAR szTemp[256] = {0};                        // Multipurppose string buffer
+    TCHAR szTemp[MAX_PATH] = {0};                        // Multipurppose string buffer
     DWORD dwRegValueSize;                           // RegValue size to obtain
     WCHAR lpExePath[MAX_PATH];                      // Path to executable, to register Autostart
 
@@ -146,10 +107,19 @@ LRESULT CALLBACK WndProc(
     case WM_CREATE:
         // Get Handle to Console with Standard output
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-#ifdef _ENABLE_APP_DEBUG_
+#ifdef _CONSOLE_DEBUG
         if (hConsole == INVALID_HANDLE_VALUE)
             MessageBox(NULL, L"Console handle couldn't Obtained!!", L"", MB_ICONERROR);
+        GetCurrentDirectory(MAX_PATH, szTemp);
+        WriteConsole(hConsole, szTemp, lstrlen(szTemp), NULL, NULL);
 #endif
+        /// Get absolute path to the config file, for autostart
+        GetModuleFileName(NULL, lpExePath, MAX_PATH);
+        // PathCchRemoveFileSpec(lpExePath, lstrlen(lpExePath));
+        PathRemoveFileSpec(lpExePath);
+        wsprintf(szConfPath, TEXT("%s%s"), lpExePath, TEXT(FN_CONFIGFILE));
+        // MessageBox(NULL, szConfPath, TEXT("d"), MB_OK);     /// For debug purpose
+
         hMenu = LoadMenu(NULL, MAKEINTRESOURCE(MID_NIMENU_DUMMYPARENT));
         // ^ (Inst. containing Resource, ResName or MKINTRES(num))
         hSubMenu = GetSubMenu(hMenu, 0);
@@ -162,7 +132,7 @@ LRESULT CALLBACK WndProc(
             nid[i].uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_SHOWTIP | NIF_STATE;
             nid[i].uVersion = NOTIFYICON_VERSION_4;             // Easy to get clicked position, or use GetRect()
             nid[i].dwStateMask = NIS_HIDDEN;
-            if (GetPrivateProfileInt(TEXT(FN_CONFIGSECT), tki[i].szTip, 0, TEXT(FN_CONFIGFILE)))
+            if ( GetPrivateProfileInt(TEXT(FN_CONFIGSECT), tki[i].szTip, 0, szConfPath) )
             {
                 nid[i].dwState = NIS_HIDDEN;
                 uIconCounter--;
@@ -199,7 +169,7 @@ LRESULT CALLBACK WndProc(
         }
 
         /// Get "Send Notification" flag value
-        fNotify = GetPrivateProfileInt(TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY), 0, TEXT(FN_CONFIGFILE));
+        fNotify = GetPrivateProfileInt(TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY), 0, szConfPath);
         if (fNotify) {
             SetMenuItemCheckState(MIID_SENDNOTIFY, TRUE);
         }
@@ -214,7 +184,7 @@ LRESULT CALLBACK WndProc(
             POINT pt = {};                  // To get Mouse Click position on icons
             pt.x = GET_X_LPARAM(wParam);    // Manifest solved the HiDPI problem
             pt.y = GET_Y_LPARAM(wParam);
-#ifdef _ENABLE_APP_DEBUG_
+#ifdef _CONSOLE_DEBUG
             wsprintf(szTemp, L"x = %d, y = %d\n", pt.x, pt.y);
             WriteConsole(hConsole, szTemp, lstrlen(szTemp), NULL, NULL);
 #endif
@@ -354,11 +324,11 @@ LRESULT CALLBACK WndProc(
     case WM_CLOSE: {
         for (int i=0; i<NOTIFYICON_TOTAL; i++) {
             LPCTSTR flagstr = (nid[i].dwState & NIS_HIDDEN) ? TEXT("1") : TEXT("0");
-            WritePrivateProfileString( TEXT(FN_CONFIGSECT), tki[i].szTip, flagstr, TEXT(FN_CONFIGFILE) );
+            WritePrivateProfileString( TEXT(FN_CONFIGSECT), tki[i].szTip, flagstr, szConfPath );
         }
         WritePrivateProfileString(
             TEXT(FN_NOTIFYSECT), TEXT(FN_NTFYSECKEY),
-            fNotify ? TEXT("1") : TEXT("0"), TEXT(FN_CONFIGFILE));
+            fNotify ? TEXT("1") : TEXT("0"), szConfPath);
         WritePrivateProfileString(NULL, NULL, NULL, NULL);  // Flush buffer
         if (uMsg == WM_QUERYENDSESSION) return TRUE;
         DestroyWindow(hwnd);
@@ -379,7 +349,7 @@ LRESULT CALLBACK WndProc(
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-/// Need to add compile option `-ladvapi32` to use Reg*()
+/// Need to add compile option `-ladvapi32` to use Reg*() --> Not needed?
 static void DetectUITheme(DWORD *pdwBufSize, DWORD *pfLightTheme) {
     *pdwBufSize = sizeof(*pfLightTheme);
     RegGetValue(

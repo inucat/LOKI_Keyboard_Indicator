@@ -14,7 +14,7 @@ This app shows icons in the System tray (Task tray or Taskbar notification area)
 (Num Lock, Caps Lock, Scroll Lock) and Insert key.
 
 Written in C/C++ from scratch and directly calling Windows API,
-LOKI runs on less memory and less dependencies (unlike .NET apps, etc...),
+LOKI runs on less memory and no additional library dependencies,
 and thus is resource-friendly.
 
 | Targeted System  | Windows 10     |
