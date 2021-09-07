@@ -3,12 +3,17 @@
 #ifndef _RESOURCE_H_
 #define _RESOURCE_H_
 
+/// <!-- Check and modify at every new release
+
+#define RES_APPVER_STR      "0.4.2"
+#define RES_VERINFOnum      0,4,2,0
+#define RES_RELEASEDATE_STR "2021/09/07"
+
+/// -->
+
 #define RES_APPNAME_STR     "LOKI - the Keyboard Indicator"
 #define RES_EXEFILENAME     "LOKI.exe"
 #define RES_CODENAME_STR    "TRANQUIL_TURTLE"
-#define RES_APPVER_STR      "0.4.2"
-#define RES_VERINFOnum      0,4,2,0
-#define RES_RELEASEDATE_STR "2021/09/04"
 #define RES_AUTHOR_STR      "inucat"
 
 // _ Icon Resource ID
