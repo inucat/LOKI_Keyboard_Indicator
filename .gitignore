@@ -1,10 +1,6 @@
 LOKI/
-null/
 workdir/
-*.png
 .vscode
-*.dat
-*.conf
 *.ini
 
 # Prerequisites

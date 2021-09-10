@@ -3,49 +3,49 @@
 #include <winver.h>
 /// @note
 /// DESIGNINFO, HWB, TEXTINCLUDE, and 255 are reserved
-/// by Microsoft for Resource Name ID, so users should
+/// by Microsoft for Resource nameID, so users should
 /// not use them.
 /// See https://docs.microsoft.com/ja-jp/cpp/windows/how-to-create-a-resource-script-file?view=msvc-160
 
 /// @note
-/// Enums are NEVER expanded. Macroes by `#define` only accepted!
+/// Enum cannot be used instead of Macro definitions.
 
 // --- Manifest resources ---
 // _ Resource Type ID for Manifest
 #define MANIFEST 24
-// _ nameID MUST BE 1 or auto adaption to HiDPI will be disabled
+// nameID for MANIFEST is fixed to 1
 1   MANIFEST    "Application.manifest"
 
 // --- Icon resources ---
-IRID_APPICON    ICON	"resource\\AppIcon.ico"
+IRID_APPICON    ICON	"..\\res\\AppIcon.ico"
 
-IRID_DNUMD		ICON	"resource\\DDN.ico"
-IRID_DCAPSD		ICON	"resource\\DDC.ico"
-IRID_DSCROLLD	ICON	"resource\\DDS.ico"
-IRID_DINSERTD	ICON	"resource\\DDI.ico"
+IRID_DNUMD		ICON	"..\\res\\DDN.ico"
+IRID_DCAPSD		ICON	"..\\res\\DDC.ico"
+IRID_DSCROLLD	ICON	"..\\res\\DDS.ico"
+IRID_DINSD	ICON	"..\\res\\DDI.ico"
 
-IRID_DNUMA		ICON	"resource\\DAN.ico"
-IRID_DCAPSA		ICON	"resource\\DAC.ico"
-IRID_DSCROLLA	ICON	"resource\\DAS.ico"
-IRID_DINSERTA	ICON	"resource\\DAI.ico"
+IRID_DNUMA		ICON	"..\\res\\DAN.ico"
+IRID_DCAPSA		ICON	"..\\res\\DAC.ico"
+IRID_DSCROLLA	ICON	"..\\res\\DAS.ico"
+IRID_DINSA	ICON	"..\\res\\DAI.ico"
 
-IRID_LNUMD		ICON	"resource\\LDNum.ico"
-IRID_LCAPSD		ICON	"resource\\LDCaps.ico"
-IRID_LSCROLLD	ICON	"resource\\LDScr.ico"
-IRID_LINSERTD	ICON	"resource\\LDIns.ico"
+IRID_LNUMD		ICON	"..\\res\\LDNum.ico"
+IRID_LCAPSD		ICON	"..\\res\\LDCaps.ico"
+IRID_LSCROLLD	ICON	"..\\res\\LDScr.ico"
+IRID_LINSD	ICON	"..\\res\\LDIns.ico"
 
-IRID_LNUMA		ICON	"resource\\LANum.ico"
-IRID_LCAPSA		ICON	"resource\\LACaps.ico"
-IRID_LSCROLLA	ICON	"resource\\LAScr.ico"
-IRID_LINSERTA	ICON	"resource\\LAIns.ico"
+IRID_LNUMA		ICON	"..\\res\\LANum.ico"
+IRID_LCAPSA		ICON	"..\\res\\LACaps.ico"
+IRID_LSCROLLA	ICON	"..\\res\\LAScr.ico"
+IRID_LINSA	ICON	"..\\res\\LAIns.ico"
 
 // --- Menu resources ---
 MID_NIMENU_DUMMYPARENT MENU {
     POPUP "X" {
-        MENUITEM "Num Lock",    MIID_NUMLOCK,       CHECKED
-        MENUITEM "Caps Lock",   MIID_CAPSLOCK,      CHECKED
-        MENUITEM "Scroll Lock", MIID_SCROLLLOCK,    CHECKED
-        MENUITEM "Insert",      MIID_INSERT,        CHECKED
+        MENUITEM "Num Lock",    MIID_NUML,       CHECKED
+        MENUITEM "Caps Lock",   MIID_CAPL,      CHECKED
+        MENUITEM "Scroll Lock", MIID_SCRL,    CHECKED
+        MENUITEM "Insert",      MIID_INS,        CHECKED
         MENUITEM SEPARATOR
         MENUITEM "Notify when toggled", MIID_SENDNOTIFY
         // MENUITEM "Notification Sound",  MIID_NOTIFYSOUND,   CHECKED
@@ -58,7 +58,7 @@ MID_NIMENU_DUMMYPARENT MENU {
 }
 
 // --- Version Info resources ---
-// nameId MUST BE 1
+// nameId is fixed to 1
 1 VERSIONINFO
 FILEVERSION RES_VERINFOnum
 PRODUCTVERSION RES_VERINFOnum

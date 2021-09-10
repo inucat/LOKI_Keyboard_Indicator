@@ -1,46 +1,67 @@
 #pragma once
 
-/// Config Filename
-#define FN_CONFIGFILE       "\\loki.ini"
-#define FN_CONFIGSECT       "HiddenFlag"
-#define FN_NOTIFYSECT       "Notification"
-#define FN_NTFYSECKEY       "Enabled"
+// Tray icons total
+#define TRAYICON_NUM    4
 
-// Num of the icons of keys to observe
-#define NOTIFYICON_TOTAL    4
+// Bit mask for GetKeyState() toggled state
+#define GKS_IS_TOGGLED  1
 
-// Toggle key active state
-#define KS_TOGGLEACTIVE     1
+/* --- CONFig file definitions --- */
+#define CONF_FILENAME       "\\loki.ini"
+#define CONF_HIDESECT       "HiddenFlag"        // Values will be their respective hidden state
+#define CONF_NOTISECT       "Notification"
+#define CONF_NOTISKEY       "Enabled"
 
-// Reg key and value name containing current UI theme (Dark or Light)
-#define REGKEYPATH_THEMEMODEsz  "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
-#define REG_VALUENAME           "AppsUseLightTheme"
+/* --- REGistry Keys and Value Names --- */
+/* Current UI theme (Dark or Light) */
+#define REGK_UITHEME    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize"
+#define REGVN_UITHEME   "AppsUseLightTheme"
+/* User specific auto run */
+#define REGK_USERAUTORUN    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+#define REGVN_AUTORUN       "LOKI-{48D10A91-BF2A-40A4-AE41-55BA0662EC6E}"       // Value data will be the path to LOKI.exe
 
-#define REGSUBKEY_USERSTARTUP   "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
-#define REGVALUE_LOKI           "LOKI-{48D10A91-BF2A-40A4-AE41-55BA0662EC6E}"       // Value name:value is the path to LOKI.exe
+#define STR_ABOUT "Version:\t" RES_APPVER_STR "\n" \
+                  "Release:\t" RES_RELEASEDATE_STR "\n" \
+                  "Author:\t" RES_AUTHOR_STR
 
 /// Application-defined Window Messages
-/// The values over WM_APP can be used.
-enum tagAPPDEFINEDWINDOWMESSAGE {
-    WM_NOTIFYICONCLICKED = ((WM_APP) + 100),
+/// @note The values over WM_APP can be used.
+enum APP_DEFINED_WINDOW_MESSAGE {
+    WM_TRAYICONCLICKED = ((WM_APP) + 100),
     WM_UITHEMECHANGED,
     WM_LLKEYHOOKED
 };
 
-// ID of the items in the tray
-enum tagNOTIFYICONID {
-    NIID_NUMLOCK,
-    NIID_CAPSLOCK,
-    NIID_SCROLLLOCK,
-    NIID_INSERT
+// IDs to distinguish each NOTIFYICONDATA
+enum NID_ID {
+    NIDID_NUML,
+    NIDID_CAPL,
+    NIDID_SCRL,
+    NIDID_INS
 };
 
-// Struct: Store the data of each key
+// Arrange the key and icon data
 typedef struct tagTHEKEYINFO {
-    INT nIrid;
-    INT nMiid;
-    INT nNiid;
-    INT nVkey;
-    INT nFlagMask;
-    LPCTSTR szTip;
+    INT iconID;     // Icon (resource) ID
+    INT menuitemID; // Menu item ID
+    INT nidID;      // NOTIFYICONDATA ID
+    INT virtkeyID;  // Virtual Key ID
+    INT nFlagMask;  // not used
+    LPCTSTR szTip;  // Icon tool tip text
 } THEKEYINFO;
+
+
+// <!--- Prototype declaration --->
+
+/// Check/Uncheck Menu Item
+/// @param uMenuItemId Menu item ID
+/// @param fChecked State to set (TRUE=checked, FALSE=unchecked)
+static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked);
+
+/// Detect which UI Theme currently applied, Dark or Light
+/// @param pdwBufSize   Not used.
+/// @param pfLightTheme Receives the value.  1 if Light theme is selected and 0 otherwise.
+static void DetectUITheme(DWORD *pfLightTheme);
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam);

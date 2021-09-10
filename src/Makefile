@@ -1,13 +1,11 @@
-# -mwindows hides console when .exe double-clicked
-# Comment out `LDFLAGS=-mwindows` for console debug.
-
 SRC		= Main.cpp
 OBJS	= $(SRC:.cpp=.o)
 EXEC	= LOKI.exe
 
 CC		= g++
-CFLAGS	= -Wall -O3 #-ladvapi32 # -lPathcch
-LDFLAGS	= -lshlwapi -mwindows
+CFLAGS	= -Wall -O3
+LDFLAGS	= -lshlwapi
+LDFLAGS += -mwindows	# Comment out this to enable console debug.
 
 WINDRES	= windres
 RC		= AppResources.rc
