@@ -18,12 +18,12 @@
 ## [0.3.1] - 2021-08-26
 
 ### Fixed
-- Add preference autosave function before Log off & Shutdown
+- Preference autosave function before Log off & Shutdown ([Issue #1](https://github.com/inucat/LOKI_Keyboard_Indicator/issues/1))
 
 ## [0.3.0] - 2021-08-23
 
 ### Added
-- Save & Load button visibility preference
+- Save & Load function for preference
 - Toggle notification
 
 ## [0.2.0] - 2021-08-21

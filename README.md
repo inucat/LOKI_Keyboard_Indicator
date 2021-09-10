@@ -13,7 +13,7 @@ Lightweight & Open source Keyboard Indicator for Windows 10
 This app shows icons in the System tray (Task tray or Taskbar notification area)
 indicating the toggle key states (Num Lock, Caps Lock, Scroll Lock, and Insert).
 
-It can send a balloon notification when the key state change,
+It can send a balloon notification when the key state changes,
 and can start automatically after Windows sign in.
 
 
