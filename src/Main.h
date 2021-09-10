@@ -20,9 +20,9 @@
 #define REGK_USERAUTORUN    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
 #define REGVN_AUTORUN       "LOKI-{48D10A91-BF2A-40A4-AE41-55BA0662EC6E}"       // Value data will be the path to LOKI.exe
 
-#define STR_ABOUT "Version:\t" RES_APPVER_STR "\n" \
-                  "Release:\t" RES_RELEASEDATE_STR "\n" \
-                  "Author:\t" RES_AUTHOR_STR
+#define STR_ABOUT "Version:\t" STR_APPVER "\n" \
+                  "Release:\t" STR_RELEASEDATE "\n" \
+                  "Author:\t" STR_AUTHOR
 
 /// Application-defined Window Messages
 /// @note The values over WM_APP can be used.
@@ -62,6 +62,12 @@ static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked);
 /// @param pdwBufSize   Not used.
 /// @param pfLightTheme Receives the value.  1 if Light theme is selected and 0 otherwise.
 static void DetectUITheme(DWORD *pfLightTheme);
+
+/// Get icon resource ID corresponding to the key state & UI theme
+/// @param ptki Pointer to the key's THEKEYINFO
+/// @param fLightTheme Flag of UI theme mode
+/// @return Icon resource ID
+static INT GetIconResourceID(const THEKEYINFO *ptki, BOOL fLightTheme);
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam);

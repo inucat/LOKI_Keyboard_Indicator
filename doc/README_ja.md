@@ -4,13 +4,15 @@
 
 Windows10向けの軽量・オープンソースなキーボードインジケータです。
 
-![Banner](./banner1.jpg)
+![Banner](./doc/banner1.jpg)
 
 ## 説明
 
 タスクバーの通知領域にアイコンを表示して、
-ロックキー（Num Lock, Caps Lock, Scroll Lock）とInsertキーの
+トグルキー（Num Lock, Caps Lock, Scroll LockとInsert）の
 オン・オフ状態をお知らせします。
+
+状態変化に応じてバルーン通知を表示することや、サインインで自動起動することもできます。
 
 C/C++言語で一から書いてWindows APIを直接呼び出しているため、
 省メモリで、追加のライブラリ依存の要らない

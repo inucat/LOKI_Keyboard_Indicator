@@ -17,30 +17,30 @@
 1   MANIFEST    "Application.manifest"
 
 // --- Icon resources ---
-IRID_APPICON    ICON	"..\\res\\AppIcon.ico"
+ICID_APPICON    ICON	"..\\res\\AppIcon.ico"
 
-IRID_DNUMD		ICON	"..\\res\\DDN.ico"
-IRID_DCAPSD		ICON	"..\\res\\DDC.ico"
-IRID_DSCROLLD	ICON	"..\\res\\DDS.ico"
-IRID_DINSD	ICON	"..\\res\\DDI.ico"
+ICID_NUML_DF	ICON	"..\\res\\DDN.ico"
+ICID_CAPL_DF	ICON	"..\\res\\DDC.ico"
+ICID_SCRL_DF	ICON	"..\\res\\DDS.ico"
+ICID_INS_DF	    ICON	"..\\res\\DDI.ico"
 
-IRID_DNUMA		ICON	"..\\res\\DAN.ico"
-IRID_DCAPSA		ICON	"..\\res\\DAC.ico"
-IRID_DSCROLLA	ICON	"..\\res\\DAS.ico"
-IRID_DINSA	ICON	"..\\res\\DAI.ico"
+ICID_NUML_DN	ICON	"..\\res\\DAN.ico"
+ICID_CAPL_DN	ICON	"..\\res\\DAC.ico"
+ICID_SCRL_DN	ICON	"..\\res\\DAS.ico"
+ICID_INS_DN	    ICON	"..\\res\\DAI.ico"
 
-IRID_LNUMD		ICON	"..\\res\\LDNum.ico"
-IRID_LCAPSD		ICON	"..\\res\\LDCaps.ico"
-IRID_LSCROLLD	ICON	"..\\res\\LDScr.ico"
-IRID_LINSD	ICON	"..\\res\\LDIns.ico"
+ICID_NUML_LF	ICON	"..\\res\\LDNum.ico"
+ICID_CAPL_LF	ICON	"..\\res\\LDCaps.ico"
+ICID_SCRL_LF	ICON	"..\\res\\LDScr.ico"
+ICID_INS_LF	    ICON	"..\\res\\LDIns.ico"
 
-IRID_LNUMA		ICON	"..\\res\\LANum.ico"
-IRID_LCAPSA		ICON	"..\\res\\LACaps.ico"
-IRID_LSCROLLA	ICON	"..\\res\\LAScr.ico"
-IRID_LINSA	ICON	"..\\res\\LAIns.ico"
+ICID_NUML_LN	ICON	"..\\res\\LANum.ico"
+ICID_CAPL_LN	ICON	"..\\res\\LACaps.ico"
+ICID_SCRL_LN	ICON	"..\\res\\LAScr.ico"
+ICID_INS_LN	    ICON	"..\\res\\LAIns.ico"
 
 // --- Menu resources ---
-MID_NIMENU_DUMMYPARENT MENU {
+MID_DUMMYPARENT MENU {
     POPUP "X" {
         MENUITEM "Num Lock",    MIID_NUML,       CHECKED
         MENUITEM "Caps Lock",   MIID_CAPL,      CHECKED
@@ -60,8 +60,8 @@ MID_NIMENU_DUMMYPARENT MENU {
 // --- Version Info resources ---
 // nameId is fixed to 1
 1 VERSIONINFO
-FILEVERSION RES_VERINFOnum
-PRODUCTVERSION RES_VERINFOnum
+FILEVERSION NUM_APPVER
+PRODUCTVERSION NUM_APPVER
 FILEOS VOS__WINDOWS32
 FILETYPE VFT_APP
 {
@@ -71,15 +71,15 @@ FILETYPE VFT_APP
         BLOCK "040904E4"
         {
             // VALUE "Comments", ""
-            VALUE "CompanyName", RES_AUTHOR_STR
+            VALUE "CompanyName", STR_AUTHOR
             VALUE "FileDescription", "LOKI - Lightweight & Open source Keyboard Indicator"
-            VALUE "FileVersion", RES_APPVER_STR
-            VALUE "InternalName", RES_EXEFILENAME
+            VALUE "FileVersion", STR_APPVER
+            VALUE "InternalName", STR_APPFILENAME
             VALUE "LegalCopyright", "(C) 2021 inucat - All rights reserved."
             // VALUE "LegalTrademarks", ""
-            VALUE "OriginalFilename", RES_EXEFILENAME
-            VALUE "ProductName", RES_APPNAME_STR
-            VALUE "ProductVersion", RES_APPVER_STR
+            VALUE "OriginalFilename", STR_APPFILENAME
+            VALUE "ProductName", STR_APPNAME
+            VALUE "ProductVersion", STR_APPVER
             // VALUE "Assembly Version", ""
         }
     }
