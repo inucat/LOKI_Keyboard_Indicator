@@ -1,7 +1,7 @@
 # Powershell script to make a release
 
-$README="README.md","README_ja.md","LICENSE"
-$CLOG="Changelog.md"
+$README="..\README.md","..\README_ja.md","..\LICENSE"
+$CLOG="..\Changelog.md"
 $EXEC="LOKI.exe"
 
 $RDIR="LOKI"
