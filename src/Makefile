@@ -1,8 +1,8 @@
-SRC		= Main.cpp
-OBJS	= $(SRC:.cpp=.o)
+SRC		= Main.c
+OBJS	= $(SRC:.c=.o)
 EXEC	= LOKI.exe
 
-CC		= g++
+CC		= gcc
 CFLAGS	= -Wall -O3
 LDFLAGS	= -lshlwapi
 LDFLAGS += -mwindows	# Comment out this to enable console debug.
