@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.3] - 2022-02-13
+
+### Changed
+
+- GCC libraries are now statically linked to make it possible to run .exe without MinGW DLLs
+
 ## [0.4.2] - 2021-09-07
 
 ### Fixed
