@@ -3,7 +3,7 @@ OBJS	= $(SRC:.c=.o)
 EXEC	= LOKI.exe
 
 CC		= gcc
-CFLAGS	= -Wall -O3
+CFLAGS	= -Wall -O3 -static
 LDFLAGS	= -lshlwapi
 LDFLAGS += -mwindows	# Comment out this to enable console debug.
 
@@ -16,6 +16,8 @@ RM		= del
 
 ${EXEC}:	${OBJS}
 	${CC} ${OBJS} ${LDFLAGS} -o ${EXEC}
+
+force:	clean ${EXEC}
 
 run:	${EXEC}
 	./${EXEC}
