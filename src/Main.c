@@ -13,6 +13,8 @@ static HWND hWindow;       // For KeyHookProc
 static HMENU hMenu, hSubMenu;       // Icon Context Menu
 static TCHAR szConfPath[MAX_PATH];  // Absolute path to the INI
 
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK KeyHookProc(int, WPARAM, LPARAM);
 
 /// Entry point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int nCmdShow)
@@ -116,9 +118,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         hSubMenu = GetSubMenu(hMenu, 0);
 
         /* Adding icons to System tray */
-        checkThemeIsLight(&fThemeIsLight);
+        check_theme_is_light(&fThemeIsLight);
         for (INT i=0; i < 4; i++) {
-            INT rid = getIconResourceID(&key_icons[i], fThemeIsLight);
+            INT rid = get_icon_rsrc_id(&key_icons[i], fThemeIsLight);
             nid[i].cbSize = sizeof(NOTIFYICONDATA);
             nid[i].hWnd = hwnd;
             nid[i].uID = key_icons[i].nidID;                    // ID for tray items
@@ -138,7 +140,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if (uIconCount != 1) {
                     nid[i].dwState = NIS_HIDDEN;
                     uIconCount--;
-                    setMenuItemCheckState(key_icons[i].menuitemID, FALSE);
+                    set_mitem_check_state(key_icons[i].menuitemID, FALSE);
                 }
             }
 
@@ -150,7 +152,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         /* Is toggle notification enabled? */
         fNotifyIsEnabled = GetPrivateProfileInt(TEXT(CONF_NOTISECT), TEXT(CONF_NOTISKEY), 0, szConfPath);
         if (fNotifyIsEnabled) {
-            setMenuItemCheckState(MIID_SENDNOTIFY, TRUE);
+            set_mitem_check_state(MIID_SENDNOTIFY, TRUE);
         }
 
         /* Is autostart enabled? */
@@ -160,7 +162,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if ( !lstrcmp(lpExePath, szTemp) )
         {
             fAutostartIsEnabled = TRUE;
-            setMenuItemCheckState(MIID_AUTOSTART, TRUE);
+            set_mitem_check_state(MIID_AUTOSTART, TRUE);
         }
 
         return 0;
@@ -191,7 +193,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
 
                     /// @note It's not sure that SendInput() has been accepted before the icon change.
-                    INT rid = getIconResourceID(&key_icons[i], fThemeIsLight);
+                    INT rid = get_icon_rsrc_id(&key_icons[i], fThemeIsLight);
                     nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
                     Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
                     break;
@@ -207,7 +209,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case MIID_SENDNOTIFY:
             fNotifyIsEnabled = !fNotifyIsEnabled;
-            setMenuItemCheckState(menuitemID, fNotifyIsEnabled);
+            set_mitem_check_state(menuitemID, fNotifyIsEnabled);
             break;
 
         case MIID_AUTOSTART:
@@ -226,7 +228,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
             }
             fAutostartIsEnabled = !fAutostartIsEnabled;
-            setMenuItemCheckState(menuitemID, fAutostartIsEnabled);
+            set_mitem_check_state(menuitemID, fAutostartIsEnabled);
             break;
 
         case MIID_ABOUT: MessageBox( NULL, TEXT(STR_ABOUT), TEXT(STR_APPNAME), MB_OK | MB_ICONINFORMATION);
@@ -242,13 +244,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     INT niid = key_icons[i].nidID;
                     if (nid[niid].dwState & NIS_HIDDEN) {
                         uIconCount++;
-                        setMenuItemCheckState(menuitemID, TRUE);
+                        set_mitem_check_state(menuitemID, TRUE);
                     } else if (uIconCount == 1) {
                         MessageBox(NULL, L"At least one icon must be present.", TEXT(STR_APPNAME), MB_ICONWARNING | MB_OK);
                         break;
                     } else {
                         uIconCount--;
-                        setMenuItemCheckState(menuitemID, FALSE);
+                        set_mitem_check_state(menuitemID, FALSE);
                     }
                     nid[niid].dwState ^= NIS_HIDDEN;
                     Shell_NotifyIcon(NIM_MODIFY, &(nid[niid]));
@@ -267,7 +269,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (key_icons[i].virtkeyID == virtkey)
             {
                 SHORT fKeyState = GetKeyState(key_icons[i].virtkeyID) & GKS_IS_TOGGLED;
-                INT rid = getIconResourceID(&key_icons[i], fThemeIsLight);
+                INT rid = get_icon_rsrc_id(&key_icons[i], fThemeIsLight);
                 nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
                 if (fNotifyIsEnabled) {
                     nid[i].uFlags |= NIF_INFO;
@@ -284,7 +286,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_UITHEMECHANGED:
         for (INT i=0; i < NUM_TRAYICONS; i++) {
-            INT rid = getIconResourceID(&key_icons[i], fThemeIsLight);
+            INT rid = get_icon_rsrc_id(&key_icons[i], fThemeIsLight);
             nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
             Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
         }
@@ -293,7 +295,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     // _ Theme color change detection
     case WM_SETTINGCHANGE:
         if (!lstrcmp((LPCWSTR) lParam, L"ImmersiveColorSet")) {
-            checkThemeIsLight(&fThemeIsLight);
+            check_theme_is_light(&fThemeIsLight);
             PostMessage(hwnd, WM_UITHEMECHANGED, 0, 0);
         }
         return 0;
@@ -331,7 +333,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-static void checkThemeIsLight(DWORD *pfThemeIsLight) {
+static void check_theme_is_light(DWORD *pfThemeIsLight) {
     DWORD dwBufferSize = sizeof(*pfThemeIsLight);
     RegGetValue(
         HKEY_CURRENT_USER,
@@ -339,7 +341,7 @@ static void checkThemeIsLight(DWORD *pfThemeIsLight) {
         RRF_RT_REG_DWORD, NULL, pfThemeIsLight, &dwBufferSize);
 }
 
-static void setMenuItemCheckState(UINT uMenuItemId, BOOL fChecked)
+static void set_mitem_check_state(UINT uMenuItemId, BOOL fChecked)
 {
     MENUITEMINFO mii = {0};
     mii.cbSize = sizeof(MENUITEMINFO);      // Needed before getting MenuItem instance
@@ -353,7 +355,7 @@ static void setMenuItemCheckState(UINT uMenuItemId, BOOL fChecked)
     SetMenuItemInfo(hSubMenu, uMenuItemId, FALSE, &mii);
 }
 
-static INT getIconResourceID(const struct key_icon_struct *pkis, BOOL fLightTheme) {
+static INT get_icon_rsrc_id(const struct key_icon_struct *pkis, BOOL fLightTheme) {
     // TODO: && TRUE is not necessary, so remove this
     BOOL fKeyIsOn = (GetKeyState(pkis->virtkeyID) & GKS_IS_TOGGLED) && TRUE;
     return pkis->iconID + ICID_ON_OFFSET * fKeyIsOn + fLightTheme * ICID_LIGHT_OFFSET;

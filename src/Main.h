@@ -51,20 +51,16 @@ struct key_icon_struct {
 
 
 /// Check/Uncheck Menu Item
-/// @param uMenuItemId Menu item ID
-/// @param fChecked State to set (TRUE=checked, FALSE=unchecked)
-static void setMenuItemCheckState(UINT uMenuItemId, BOOL fChecked);
+/// @param UINT Menu item ID
+/// @param BOOL State (TRUE=checked, FALSE=unchecked)
+static void set_mitem_check_state(UINT, BOOL);
 
-/// Detect which UI Theme currently applied, Dark or Light
-/// @param pdwBufSize   Not used.
-/// @param pfLightTheme Receives the value.  1 if Light theme is selected and 0 otherwise.
-static void checkThemeIsLight(DWORD *pfLightTheme);
+/// Checks which Windows theme currently applied, Dark or Light
+/// @param DWORD* Receives the value.  1 if Light theme is selected and 0 otherwise.
+static void check_theme_is_light(DWORD *);
 
-/// Get icon resource ID corresponding to the key state & UI theme
-/// @param ptki Pointer to the key's THEKEYINFO
-/// @param fLightTheme Flag of UI theme mode
+/// Get icon resource ID corresponding to the key state & Win theme
+/// @param key_icon_struct* Pointer to the key
+/// @param BOOL True when Light theme is applied
 /// @return Icon resource ID
-static INT getIconResourceID(const struct key_icon_struct *ptki, BOOL fLightTheme);
-
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam);
+static INT get_icon_rsrc_id(const struct key_icon_struct*, BOOL);

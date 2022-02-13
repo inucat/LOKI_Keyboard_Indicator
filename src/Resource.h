@@ -3,9 +3,9 @@
 #ifndef _RESOURCE_H_
 #define _RESOURCE_H_
 
-#define STR_APPVER      "0.4.3"
+#define STR_APPVER      "0.4.4"
 #define STR_RELEASEDATE "2022-02-13"
-#define NUM_APPVER      0,4,3,16
+#define NUM_APPVER      0,4,4,17
 
 #define STR_APPNAME     "LOKI - the Keyboard Indicator"
 #define STR_APPFILENAME "LOKI.exe"
