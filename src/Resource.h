@@ -3,17 +3,13 @@
 #ifndef _RESOURCE_H_
 #define _RESOURCE_H_
 
-/// <!-- Check and modify at every new release
-
-#define STR_APPVER      "0.4.2"
-#define STR_RELEASEDATE "2021/09/07"
-#define NUM_APPVER      0,4,2,15
-
-/// -->
+#define STR_APPVER      "0.4.3"
+#define STR_RELEASEDATE "2022-02-13"
+#define NUM_APPVER      0,4,3,16
 
 #define STR_APPNAME     "LOKI - the Keyboard Indicator"
 #define STR_APPFILENAME "LOKI.exe"
-#define STR_CODENAME    "TRANQUIL_TURTLE"   // Used for Window Class name
+#define STR_CODENAME    "TRANQUIL_TURTLE"   // As Window Class name
 #define STR_AUTHOR      "inucat"
 
 // _ Icon Resource ID

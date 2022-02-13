@@ -1,15 +1,12 @@
-/* TRANQUIL_TURTLE */
-#define UNICODE         /// UTF-8 based
+#define UNICODE         /// UTF-8 support
 #include <sdkddkver.h>
-#define NTDDI_VERSION NTDDI_WIN10           /// For `NOTIFYICONDATA.uVersion = 4'
-#define _WIN32_WINNT _WIN32_WINNT_WIN10     /// For Registry functions
-// #include <PathCch.h>    /// For PathCchRemoveFileSpec (preferred but link error, retry in a while)
-#include <Shlwapi.h>    /// For PathRemoveFileSpec (deprecated though)
+#define NTDDI_VERSION NTDDI_WIN10           /// `NOTIFYICONDATA.uVersion = 4'
+#define _WIN32_WINNT _WIN32_WINNT_WIN10     /// Registry functions behave for Win10
+#include <Shlwapi.h>    /// PathRemoveFileSpec()
 #include <Windows.h>
-#include <windowsx.h>   /// GET_X(,Y)_LPARAM
-#include "Resource.h"   /// My resource definitions
-#include "Main.h"       /// etc.
-// #define _CONSOLE_DEBUG
+#include <windowsx.h>   /// GET_X_LPARAM(), GET_Y_LPARAM()
+#include "Resource.h"
+#include "Main.h"
 
 static HANDLE hConsole;    // For console debugging
 static HWND hWindow;       // For KeyHookProc
@@ -25,8 +22,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int n
     HWND hwnd;
     MSG msg;
 
+    // Get console handle when debug flag is set
     #ifdef _CONSOLE_DEBUG
-    // Get Handle to Console with Standard output
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole == INVALID_HANDLE_VALUE)
         MessageBox(NULL, L"Console handle couldn't Obtained!!", L"", MB_ICONERROR);
@@ -34,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int n
     WriteConsole(hConsole, szTemp, lstrlen(szTemp), NULL, NULL);
     #endif
 
-    // Set Window Attributes
+    // Set Window Attributes & register Window class with them
     wc.style        = CS_HREDRAW|CS_VREDRAW;
     wc.lpfnWndProc  = WndProc;
     wc.cbClsExtra   = 0;
@@ -45,8 +42,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int n
     wc.hbrBackground= (HBRUSH) (COLOR_ACTIVECAPTION + 1);
     wc.lpszMenuName = NULL;
     wc.lpszClassName= szAppName;
-
-    // Register Window class
     if (!RegisterClass(&wc)) return 0;
 
     // Make a window
@@ -68,7 +63,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE null, LPSTR lpszCmdLine, int n
     return msg.wParam;
 }
 
-/// Keyboard Hook Proc.
+/// Keyboard Hook Procedure
 LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
     KBDLLHOOKSTRUCT *pKeyStruct;
     if (nCode == HC_ACTION && wParam == WM_KEYUP) {
@@ -80,7 +75,7 @@ LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-/// Window Procedure Func.
+/// Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static const THEKEYINFO tki[TRAYICON_NUM] = {
@@ -122,7 +117,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         DetectUITheme(&fLightThemeUsed);
         for (INT i=0; i < 4; i++) {
             INT rid = GetIconResourceID(&tki[i], fLightThemeUsed);
-                // tki[i].iconID + (GetKeyState(tki[i].virtkeyID) & GKS_IS_TOGGLED) * ICID_ON_OFFSET + fLightThemeUsed * ICID_LIGHT_OFFSET;   // Icon resource ID
             nid[i].cbSize = sizeof(NOTIFYICONDATA);
             nid[i].hWnd = hwnd;
             nid[i].uID = tki[i].nidID;                          // ID for tray items
@@ -201,9 +195,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
                     SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
 
-                    /// @note It's unknown whether SendInput() has been accepted before the icon change.
+                    /// @note It's not sure that SendInput() has been accepted before the icon change.
                     INT rid = GetIconResourceID(&tki[i], fLightThemeUsed);
-                        // tki[i].iconID + ICID_ON_OFFSET * (GetKeyState(tki[i].virtkeyID) & GKS_IS_TOGGLED) + fLightThemeUsed * ICID_LIGHT_OFFSET;
                     nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
                     Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
                     break;
@@ -282,7 +275,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 SHORT fKeyState = GetKeyState(tki[i].virtkeyID) & GKS_IS_TOGGLED;
                 INT rid = GetIconResourceID(&tki[i], fLightThemeUsed);
-                    // tki[i].iconID + ICID_ON_OFFSET * fKeyState + fLightThemeUsed * ICID_LIGHT_OFFSET;
                 nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
                 if (fNotify) {
                     nid[i].uFlags |= NIF_INFO;
@@ -300,7 +292,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_UITHEMECHANGED:
         for (INT i=0; i < TRAYICON_NUM; i++) {
             INT rid = GetIconResourceID(&tki[i], fLightThemeUsed);
-            //  tki[i].iconID + ICID_ON_OFFSET * (GetKeyState(tki[i].virtkeyID) & GKS_IS_TOGGLED) + fLightThemeUsed * ICID_LIGHT_OFFSET;
             nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
             Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
         }
@@ -339,7 +330,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         PostQuitMessage(0);
         return 0;
-    }
+    } // switch
 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -367,8 +358,6 @@ static void SetMenuItemCheckState(UINT uMenuItemId, BOOL fChecked)
 }
 
 static INT GetIconResourceID(const THEKEYINFO *ptki, BOOL fLightTheme) {
-    // INT rid = tki[i].iconID + ICID_ON_OFFSET * (GetKeyState(tki[i].virtkeyID) & GKS_IS_TOGGLED) + fLightThemeUsed * ICID_LIGHT_OFFSET;
     BOOL fIsKeyOn = (GetKeyState(ptki->virtkeyID) & GKS_IS_TOGGLED) && TRUE;
     return ptki->iconID + ICID_ON_OFFSET * fIsKeyOn + fLightTheme * ICID_LIGHT_OFFSET;
 }
-/* TRANQUIL_TURTLE */
