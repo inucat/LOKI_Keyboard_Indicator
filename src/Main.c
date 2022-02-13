@@ -111,6 +111,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PathRemoveFileSpec(lpExePath);
         wsprintf(szConfPath, TEXT("%s%s"), lpExePath, TEXT(CONF_FILENAME));
 
+        /* Context menu on the icons */
+        hMenu = LoadMenu(NULL, MAKEINTRESOURCE(MID_DUMMYPARENT));
+        hSubMenu = GetSubMenu(hMenu, 0);
+
         /* Adding icons to System tray */
         checkThemeIsLight(&fThemeIsLight);
         for (INT i=0; i < 4; i++) {
@@ -142,10 +146,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             Shell_NotifyIcon(NIM_ADD, &nid[i]);
             Shell_NotifyIcon(NIM_SETVERSION, &nid[i]);
         }
-
-        /* Context menu on the icons */
-        hMenu = LoadMenu(NULL, MAKEINTRESOURCE(MID_DUMMYPARENT));
-        hSubMenu = GetSubMenu(hMenu, 0);
 
         /* Is toggle notification enabled? */
         fNotifyIsEnabled = GetPrivateProfileInt(TEXT(CONF_NOTISECT), TEXT(CONF_NOTISKEY), 0, szConfPath);
