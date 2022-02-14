@@ -17,27 +17,27 @@
 1   MANIFEST    "Application.manifest"
 
 // --- Icon resources ---
-ICID_APPICON    ICON	"..\\res\\AppIcon.ico"
+ICID_APPICON    ICON	"../res/AppIcon.ico"
 
-ICID_NUML_DF	ICON	"..\\res\\DDN.ico"
-ICID_CAPL_DF	ICON	"..\\res\\DDC.ico"
-ICID_SCRL_DF	ICON	"..\\res\\DDS.ico"
-ICID_INS_DF	    ICON	"..\\res\\DDI.ico"
+ICID_NUML_DF	ICON	"../res/DDN.ico"
+ICID_CAPL_DF	ICON	"../res/DDC.ico"
+ICID_SCRL_DF	ICON	"../res/DDS.ico"
+ICID_INS_DF	    ICON	"../res/DDI.ico"
 
-ICID_NUML_DN	ICON	"..\\res\\DAN.ico"
-ICID_CAPL_DN	ICON	"..\\res\\DAC.ico"
-ICID_SCRL_DN	ICON	"..\\res\\DAS.ico"
-ICID_INS_DN	    ICON	"..\\res\\DAI.ico"
+ICID_NUML_DN	ICON	"../res/DAN.ico"
+ICID_CAPL_DN	ICON	"../res/DAC.ico"
+ICID_SCRL_DN	ICON	"../res/DAS.ico"
+ICID_INS_DN	    ICON	"../res/DAI.ico"
 
-ICID_NUML_LF	ICON	"..\\res\\LDNum.ico"
-ICID_CAPL_LF	ICON	"..\\res\\LDCaps.ico"
-ICID_SCRL_LF	ICON	"..\\res\\LDScr.ico"
-ICID_INS_LF	    ICON	"..\\res\\LDIns.ico"
+ICID_NUML_LF	ICON	"../res/LDNum.ico"
+ICID_CAPL_LF	ICON	"../res/LDCaps.ico"
+ICID_SCRL_LF	ICON	"../res/LDScr.ico"
+ICID_INS_LF	    ICON	"../res/LDIns.ico"
 
-ICID_NUML_LN	ICON	"..\\res\\LANum.ico"
-ICID_CAPL_LN	ICON	"..\\res\\LACaps.ico"
-ICID_SCRL_LN	ICON	"..\\res\\LAScr.ico"
-ICID_INS_LN	    ICON	"..\\res\\LAIns.ico"
+ICID_NUML_LN	ICON	"../res/LANum.ico"
+ICID_CAPL_LN	ICON	"../res/LACaps.ico"
+ICID_SCRL_LN	ICON	"../res/LAScr.ico"
+ICID_INS_LN	    ICON	"../res/LAIns.ico"
 
 // --- Menu resources ---
 MID_DUMMYPARENT MENU {
