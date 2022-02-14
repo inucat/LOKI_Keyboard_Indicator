@@ -32,7 +32,7 @@ wmhDestroyWindow
 (HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     UnhookWindowsHookEx(hKeyHook);
     DestroyMenu(hMenu);
-    for (int i=0; i < NUM_TRAYICONS; i++) {
+    for (int i=0; i < MAX_TRAYICONS; i++) {
         Shell_NotifyIcon(NIM_DELETE, &nid[i]);          // Remove Icons from the tray
     }
     PostQuitMessage(0);
