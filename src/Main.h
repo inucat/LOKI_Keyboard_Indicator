@@ -56,8 +56,8 @@ struct key_icon_struct {
 static void set_mitem_check_state(UINT, BOOL);
 
 /// Checks which Windows theme currently applied, Dark or Light
-/// @param DWORD* Receives the value.  1 if Light theme is selected and 0 otherwise.
-static void check_theme_is_light(DWORD *);
+/// @return TRUE if Light theme is selected and FALSE otherwise.
+static BOOL check_theme_is_light(void);
 
 /// Get icon resource ID corresponding to the key state & Win theme
 /// @param key_icon_struct* Pointer to the key

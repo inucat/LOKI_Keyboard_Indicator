@@ -4,7 +4,7 @@
 
 # LOKI - the Keyboard Indicator
 
-Lightweight & Open source Keyboard Indicator for Windows 10
+Lightweight & Open source Keyboard Indicator for Windows 10, 11
 
 ![Banner](./doc/banner1.jpg)
 
@@ -21,7 +21,7 @@ Written in C/C++ from scratch and directly calling Windows API,
 LOKI runs on less memory and no additional library dependencies,
 and thus is resource-friendly.
 
-| Targeted System  | Windows 10     |
+| Targeted System  | Windows 10, 11 |
 | :--------------- | :------------- |
 | Dev. Environment | MinGW & VSCode |
 
@@ -46,7 +46,7 @@ By Windows default, notification icons will hide in a while.
 You may want to change this behavior as following:
 
 1. Right click on the Taskbar, then select "Taskbar settings (with ⚙Gear icon)".
-2. Scroll down to "Notification area", then select first link.
+2. On Windows 10, scroll down to "Notification area", then select first link. On Windows 11, you click to open the "overflow" setting there.
 3. Turn on LOKI icons' switch to always show the icons.
 
 ## License & Disclaimer

@@ -118,7 +118,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         hSubMenu = GetSubMenu(hMenu, 0);
 
         /* Adding icons to System tray */
-        check_theme_is_light(&fThemeIsLight);
+        fThemeIsLight = check_theme_is_light();
         for (INT i=0; i < 4; i++) {
             INT rid = get_icon_rsrc_id(&key_icons[i], fThemeIsLight);
             nid[i].cbSize = sizeof(NOTIFYICONDATA);
@@ -295,7 +295,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     // _ Theme color change detection
     case WM_SETTINGCHANGE:
         if (!lstrcmp((LPCWSTR) lParam, L"ImmersiveColorSet")) {
-            check_theme_is_light(&fThemeIsLight);
+            fThemeIsLight = check_theme_is_light();
             PostMessage(hwnd, WM_UITHEMECHANGED, 0, 0);
         }
         return 0;
@@ -333,12 +333,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-static void check_theme_is_light(DWORD *pfThemeIsLight) {
-    DWORD dwBufferSize = sizeof(*pfThemeIsLight);
+static BOOL check_theme_is_light(void) {
+    DWORD f_theme_is_light = 0;
+    DWORD reg_value_size = sizeof(f_theme_is_light);
     RegGetValue(
         HKEY_CURRENT_USER,
         TEXT(REGK_UITHEME), TEXT(REGVN_UITHEME),
-        RRF_RT_REG_DWORD, NULL, pfThemeIsLight, &dwBufferSize);
+        RRF_RT_REG_DWORD, NULL, &f_theme_is_light, &reg_value_size);
+    return f_theme_is_light;
 }
 
 static void set_mitem_check_state(UINT uMenuItemId, BOOL fChecked)

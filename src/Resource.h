@@ -18,6 +18,7 @@
 #define ICID_ON_OFFSET   4
 #define ICID_LIGHT_OFFSET    8
 
+// Enum can't be used as windres fails if you do so
 #define ICID_NUML_DF    (429)
 #define ICID_NUML_DN    ((ICID_NUML_DF) + 4)
 #define ICID_NUML_LF    ((ICID_NUML_DF) + 8)
