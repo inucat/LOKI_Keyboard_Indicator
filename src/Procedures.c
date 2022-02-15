@@ -41,7 +41,6 @@ LRESULT CALLBACK KeyHookProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 Define_WMHandler(wmCreate) {
-    TCHAR abs_path_to_exe[MAX_PATH] = {0};    // Path to executable, to register Autostart
     // キーボードフックを登録し、トグルキー入力監視を始める。
     // Register keyboard hook and start watching toggle keys input.
     hWnd_g  = hwnd;
@@ -52,14 +51,32 @@ Define_WMHandler(wmCreate) {
         return;
     }
 
-    // ABSOLUTE path of INI is needed when auto-started
-    GetModuleFileName(NULL, abs_path_to_exe, MAX_PATH);
-    PathRemoveFileSpec(abs_path_to_exe);
-    wsprintf(iniPath_g, TEXT("%s/%s"), abs_path_to_exe, TEXT(CONF_FILENAME));
-
     /* Context menu on the icons */
     hMenu_g = LoadMenu(NULL, MAKEINTRESOURCE(MID_DUMMYPARENT));
     hSubMenu_g = GetSubMenu(hMenu_g, 0);
+
+    // Checks autostart is enabled by looking up the entry with EXE path in a registry key
+    TCHAR path_to_exe[MAX_PATH] = {0};
+    TCHAR path_to_exe_on_reg[MAX_PATH] = {0};
+    DWORD reg_value_size = sizeof(path_to_exe_on_reg);
+    GetModuleFileName(NULL, path_to_exe, sizeof(path_to_exe));
+    RegGetValue(HKEY_CURRENT_USER, TEXT(REGK_USERAUTORUN), TEXT(REGVN_AUTORUN), RRF_RT_REG_SZ, NULL,
+                path_to_exe_on_reg, &reg_value_size);
+    autostartEnabled_g = !lstrcmp(path_to_exe, path_to_exe_on_reg);
+    if ( autostartEnabled_g ) {
+        set_mitem_check_state(MIID_AUTOSTART, TRUE);
+    }
+
+    // Path needed for Autostart registration & INI Load
+    TCHAR * path_to_exe_dir = path_to_exe;
+    PathRemoveFileSpec(path_to_exe_dir);
+    wsprintf(iniPath_g, TEXT("%s/%s"), path_to_exe_dir, TEXT(CONF_FILENAME));
+
+    // Checks notification is enabled
+    notifyEnabled_g = GetPrivateProfileInt(TEXT(CONF_NOTISECT), TEXT(CONF_NOTISKEY), 0, iniPath_g);
+    if (notifyEnabled_g) {
+        set_mitem_check_state(MIID_SENDNOTIFY, TRUE);
+    }
 
     /* Adding icons to System tray */
     themeIsLight_g = check_theme_is_light();
@@ -91,23 +108,6 @@ Define_WMHandler(wmCreate) {
         // Adds to tray & apply uVersion
         Shell_NotifyIcon(NIM_ADD, &nid[i]);
         Shell_NotifyIcon(NIM_SETVERSION, &nid[i]);
-    }
-
-    // Checks notification is enabled
-    notifyEnabled_g = GetPrivateProfileInt(TEXT(CONF_NOTISECT), TEXT(CONF_NOTISKEY), 0, iniPath_g);
-    if (notifyEnabled_g) {
-        set_mitem_check_state(MIID_SENDNOTIFY, TRUE);
-    }
-
-    // Checks autostart is enabled by looking up the entry with EXE path in a registry key
-    TCHAR reg_exe_path[MAX_PATH] = {0};
-    DWORD reg_value_size = sizeof(reg_exe_path);
-    GetModuleFileName(NULL, abs_path_to_exe, sizeof(abs_path_to_exe));
-    RegGetValue(HKEY_CURRENT_USER, TEXT(REGK_USERAUTORUN), TEXT(REGVN_AUTORUN), RRF_RT_REG_SZ, NULL,
-                reg_exe_path, &reg_value_size);
-    autostartEnabled_g = !lstrcmp(abs_path_to_exe, reg_exe_path);
-    if ( autostartEnabled_g ) {
-        set_mitem_check_state(MIID_AUTOSTART, TRUE);
     }
 }
 
@@ -157,12 +157,12 @@ Define_WMHandler(wmMenuItemClicked) {
             RegDeleteKeyValue(HKEY_CURRENT_USER, TEXT(REGK_USERAUTORUN), TEXT(REGVN_AUTORUN));
         } else {
             DWORD reg_value_size;
-            TCHAR abs_path_to_exe[MAX_PATH] = {0};
-            reg_value_size = sizeof(abs_path_to_exe);
-            GetModuleFileName(NULL, abs_path_to_exe, sizeof(abs_path_to_exe));
+            TCHAR path_to_exe[MAX_PATH] = {0};
+            reg_value_size = sizeof(path_to_exe);
+            GetModuleFileName(NULL, path_to_exe, sizeof(path_to_exe));
             LONG errcode =
                 RegSetKeyValue( HKEY_CURRENT_USER, TEXT(REGK_USERAUTORUN), TEXT(REGVN_AUTORUN),
-                                RRF_RT_REG_SZ, abs_path_to_exe, reg_value_size );
+                                RRF_RT_REG_SZ, path_to_exe, reg_value_size );
             if (errcode != ERROR_SUCCESS) {
                 MessageBox(NULL, L"Autostart registration failed.", TEXT(STR_APPNAME), MB_ICONERROR);
                 return;

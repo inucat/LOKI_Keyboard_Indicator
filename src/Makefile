@@ -1,4 +1,4 @@
-SRC		= Main.c
+SRC		= Main.c Procedures.c
 OBJS	= $(SRC:.c=.o)
 EXEC	= LOKI.exe
 
