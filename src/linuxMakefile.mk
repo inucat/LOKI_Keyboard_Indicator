@@ -11,7 +11,7 @@ export OBJDUMP=x86_64-w64-mingw32-objdump
 export RESCOMP=x86_64-w64-mingw32-windres
 export WINDRES=x86_64-w64-mingw32-windres
 
-SRC		= Main.c
+SRC		= Main.c Procedures.c
 OBJS	= $(SRC:.c=.o)
 EXEC	= LOKI.exe
 
@@ -22,11 +22,11 @@ LDFLAGS += -mwindows	# Comment out this to enable console debug.
 RC		= AppResources.rc
 OBJS	+= $(RC:.rc=.o)
 
-RM		= del
+RM		= rm -f
 
 
 ${EXEC}:	${OBJS}
-	${CXX} ${OBJS} ${LDFLAGS} -o ${EXEC}
+	${CC} ${OBJS} ${LDFLAGS} -o ${EXEC}
 
 force:	clean ${EXEC}
 
@@ -34,7 +34,7 @@ run:	${EXEC}
 	./${EXEC}
 
 %.o:	%.c
-	${CXX} ${CFLAGS} -o $@ -c $<
+	${CC} ${CFLAGS} -o $@ -c $<
 
 %.o:	%.rc
 	${WINDRES} ${RC} $*.o
