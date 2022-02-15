@@ -8,6 +8,8 @@
 #include "Resource.h"
 #include "Procedures.h"
 
+// FIXME:   Insert key does not get turned off when its icon clicked.
+
 static void set_mitem_check_state(UINT, BOOL);
 static BOOL check_theme_is_light(void);
 INT get_icon_rsrc_id(const struct key_icon_struct*, BOOL);
@@ -127,20 +129,24 @@ Define_WMHandler(wmTrayIconClicked) {
         WORD clicked_icon = HIWORD(lParam);     // NOTIFYICONDATA_ID of the clicked icon
         INPUT inputs[2];                        // Keystrokes sent to Windows
         ZeroMemory(inputs, sizeof(inputs));
-        for (INT i=0; i < MAX_TRAYICONS; i++) {
-            if (key_icons[i].nidID == clicked_icon) {
-                inputs[0].type       = inputs[1].type   = INPUT_KEYBOARD;
-                inputs[0].ki.wVk     = inputs[1].ki.wVk = key_icons[i].virtkeyID;
-                inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
-                SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
-
-                /// @note It's not sure that SendInput() has been accepted before the icon change.
-                INT rid = get_icon_rsrc_id(&key_icons[i], themeIsLight_g);
-                nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
-                Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
-                return;
+        #define Get_Target_KIS_Index(kis_member, compare_to, store_index_to) \
+            for (int i=0; i < MAX_TRAYICONS; i++) { \
+                if (key_icons[i].kis_member == compare_to) \
+                    store_index_to = i; \
             }
-        }
+
+        int idx = 0;
+        Get_Target_KIS_Index(nidID, clicked_icon, idx);
+        inputs[0].type       = inputs[1].type   = INPUT_KEYBOARD;
+        inputs[0].ki.wVk     = inputs[1].ki.wVk = key_icons[idx].virtkeyID;
+        inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+        SendInput(ARRAYSIZE(inputs), inputs, sizeof(INPUT));
+
+        /// @note It's not sure that SendInput() has been accepted before the icon change.
+        INT rid = get_icon_rsrc_id(&key_icons[idx], themeIsLight_g);
+        nid[idx].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rid), IMAGE_ICON, 0, 0, 0);
+        Shell_NotifyIcon(NIM_MODIFY, &nid[idx]);
+        return;
     }
 }
 
@@ -181,49 +187,46 @@ Define_WMHandler(wmMenuItemClicked) {
 
     // The clicked item is for icon switch
     default:
-        for (int i=0; i<MAX_TRAYICONS; i++) {
-            if (key_icons[i].menuitemID == clicked_item) {
-                INT niid = key_icons[i].nidID;
-                BOOL is_checked;
-                if (nid[niid].dwState & NIS_HIDDEN) {
-                    iconCount_g++;
-                    is_checked = TRUE;
-                } else {
-                    if (iconCount_g == 1) {
-                        MessageBox(NULL, L"At least one icon must be present.", TEXT(STR_APPNAME), MB_ICONWARNING | MB_OK);
-                        return;
-                    }
-                    iconCount_g--;
-                    is_checked = FALSE;
+        {
+            int idx = 0;
+            Get_Target_KIS_Index(menuitemID, clicked_item, idx);
+            INT niid = key_icons[idx].nidID;
+            BOOL is_checked;
+            if (nid[niid].dwState & NIS_HIDDEN) {
+                iconCount_g++;
+                is_checked = TRUE;
+            } else {
+                if (iconCount_g == 1) {
+                    MessageBox(NULL, L"At least one icon must be present.", TEXT(STR_APPNAME), MB_ICONWARNING | MB_OK);
+                    return;
                 }
-                set_mitem_check_state(clicked_item, is_checked);
-                nid[niid].dwState ^= NIS_HIDDEN;
-                Shell_NotifyIcon(NIM_MODIFY, &(nid[niid]));
-                return;
+                iconCount_g--;
+                is_checked = FALSE;
             }
+            set_mitem_check_state(clicked_item, is_checked);
+            nid[niid].dwState ^= NIS_HIDDEN;
+            Shell_NotifyIcon(NIM_MODIFY, &(nid[niid]));
+            return;
         }
-        return;
     } // switch (clicked_item)
 }
 
 Define_WMHandler(wmLLKeyHooked) {
     INT pressed_key = (INT) wParam;
-    for (INT i=0; i < MAX_TRAYICONS; i++) {
-        if (key_icons[i].virtkeyID == pressed_key) {
-            SHORT fKeyState = GetKeyState(key_icons[i].virtkeyID) & GKS_IS_TOGGLED;
-            INT rsrc_id = get_icon_rsrc_id(&key_icons[i], themeIsLight_g);
-            nid[i].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rsrc_id), IMAGE_ICON, 0, 0, 0);
-            if (notifyEnabled_g) {
-                TCHAR notify_message[ sizeof(nid[i].szInfo) ] = {0};
-                nid[i].uFlags |= NIF_INFO;
-                wsprintf(notify_message, L"%s: %s", key_icons[i].szTip, fKeyState ? L"On" : L"Off");
-                lstrcpy(nid[i].szInfo, notify_message);
-            }
-            Shell_NotifyIcon(NIM_MODIFY, &nid[i]);
-            nid[i].uFlags &= ~NIF_INFO;
-            return;
-        }
+    int idx = 0;
+    Get_Target_KIS_Index(virtkeyID, pressed_key, idx);
+    SHORT fKeyState = GetKeyState(key_icons[idx].virtkeyID) & GKS_IS_TOGGLED;
+    INT rsrc_id = get_icon_rsrc_id(&key_icons[idx], themeIsLight_g);
+    nid[idx].hIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(rsrc_id), IMAGE_ICON, 0, 0, 0);
+    if (notifyEnabled_g) {
+        TCHAR notify_message[ sizeof(nid[idx].szInfo) ] = {0};
+        nid[idx].uFlags |= NIF_INFO;
+        wsprintf(notify_message, L"%s: %s", key_icons[idx].szTip, fKeyState ? L"On" : L"Off");
+        lstrcpy(nid[idx].szInfo, notify_message);
     }
+    Shell_NotifyIcon(NIM_MODIFY, &nid[idx]);
+    nid[idx].uFlags &= ~NIF_INFO;
+    return;
 }
 
 Define_WMHandler(wmThemeChanged) {
