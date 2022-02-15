@@ -30,7 +30,7 @@
 /// @note The values over WM_APP can be used.
 enum APP_DEFINED_WINDOW_MESSAGE {
     AWM_TRAYICONCLICKED = ((WM_APP) + 100),
-    AWM_UITHEMECHANGED,
+    // AWM_UITHEMECHANGED,
     AWM_LLKEYHOOKED
 };
 
@@ -40,14 +40,6 @@ enum NID_ID {
     NIDID_CAPL,
     NIDID_SCRL,
     NIDID_INS
-};
-
-struct key_icon_struct {
-    INT iconID;     // Icon resource ID
-    INT menuitemID; // Menu item ID
-    INT nidID;      // NOTIFYICONDATA ID
-    INT virtkeyID;  // Virtual Key ID
-    LPCTSTR szTip;  // Icon tool tip text
 };
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

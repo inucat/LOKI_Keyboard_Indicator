@@ -22,7 +22,7 @@ LDFLAGS += -mwindows	# Comment out this to enable console debug.
 RC		= AppResources.rc
 OBJS	+= $(RC:.rc=.o)
 
-RM		= del
+RM		= rm -f
 
 
 ${EXEC}:	${OBJS}

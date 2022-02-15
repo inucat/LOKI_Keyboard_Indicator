@@ -8,17 +8,27 @@
 #include "Resource.h"
 #include "Procedures.h"
 
+struct key_icon_struct {
+    INT iconID;     // Icon resource ID
+    INT menuitemID; // Menu item ID
+    INT nidID;      // NOTIFYICONDATA ID
+    INT virtkeyID;  // Virtual Key ID
+    LPCTSTR szTip;  // Icon tool tip text
+    NOTIFYICONDATA *nidata;
+};
+
 static void set_mitem_check_state(UINT, BOOL);
 static BOOL check_theme_is_light(void);
 INT get_icon_rsrc_id(const struct key_icon_struct*, BOOL);
 LRESULT CALLBACK KeyHookProc(int, WPARAM, LPARAM);
 
-static const struct key_icon_struct key_icons[MAX_TRAYICONS] = {
+static struct key_icon_struct key_icons[MAX_TRAYICONS] = {
     {ICID_NUML_DF, MIID_NUML, NIDID_NUML, VK_NUMLOCK, L"Num Lock"},
     {ICID_CAPL_DF, MIID_CAPL, NIDID_CAPL, VK_CAPITAL, L"Caps Lock"},
     {ICID_SCRL_DF, MIID_SCRL, NIDID_SCRL, VK_SCROLL,  L"Scroll Lock"},
     {ICID_INS_DF,  MIID_INS,  NIDID_INS,  VK_INSERT,  L"Insert"}
 };
+
 static HWND hWnd_g;
 static HHOOK hKeyHook_g;
 static HMENU hMenu_g, hSubMenu_g;
@@ -82,6 +92,7 @@ Define_WMHandler(wmCreate) {
     themeIsLight_g = check_theme_is_light();
     for (INT i=0; i < MAX_TRAYICONS; i++) {
         INT rid = get_icon_rsrc_id(&key_icons[i], themeIsLight_g);
+        key_icons[i].nidata = (NOTIFYICONDATA*) malloc( sizeof(NOTIFYICONDATA) );
         nid[i].cbSize = sizeof(NOTIFYICONDATA);
         nid[i].hWnd = hwnd;
         nid[i].uID = key_icons[i].nidID;                    // ID for tray items
